@@ -20,12 +20,10 @@ RUN \
   ln -s /app/localtime /etc/localtime && \
   ln -s /usr/bin/chromium-browser /usr/bin/chromium && \
   chmod +x /usr/bin/chromium && \
-  pip3 install --no-cache-dir --break-system-packages \
+  pip3 install --no-cache-dir \
     requests beautifulsoup4 lxml loguru pytz bencodepy \
-    aiohttp httpx pyyaml toml \
-    pymongo redis sqlalchemy \
-    schedule apscheduler \
-    pillow qbittorrent-api deluge-client transmission-rpc && \
+    aiohttp httpx pyyaml \
+    qbittorrent-api deluge-client transmission-rpc && \
   apk del gcc g++ git cmake make npm libc-dev python3-dev libffi-dev openssl-dev && \
   echo 'bind 127.0.0.1' >> /app/redis.conf && \
   echo 'daemonize yes' >> /app/redis.conf
