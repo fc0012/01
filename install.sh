@@ -132,13 +132,21 @@ start_services() {
     print_success "VERTEX started successfully."
 }
 
-generate_password() { tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 16; }
-
 show_result() {
     local install_dir="${1:-$INSTALL_DIR}"
     local port="${2:-$DEFAULT_PORT}"
-    local password="${3:-}"
     local server_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    
+    # Wait for VERTEX to generate password file
+    local password_file="$install_dir/data/password"
+    local password=""
+    local retry=0
+    while [ $retry -lt 10 ] && [ ! -f "$password_file" ]; do
+        sleep 1
+        retry=$((retry + 1))
+    done
+    [ -f "$password_file" ] && password=$(cat "$password_file" 2>/dev/null)
+    
     echo ""
     echo "=============================================="
     print_success "VERTEX installation completed!"
@@ -147,7 +155,14 @@ show_result() {
     echo "Access URL: http://localhost:${port}"
     echo "           http://${server_ip}:${port}"
     echo ""
-    [ -n "$password" ] && echo "Default Credentials:" && echo "  Username: admin" && echo "  Password: ${password}" && echo ""
+    echo "Default Credentials:"
+    echo "  Username: admin"
+    if [ -n "$password" ]; then
+        echo "  Password: ${password}"
+    else
+        echo "  Password: cat ${install_dir}/data/password"
+    fi
+    echo ""
     echo "Commands:"
     echo "  Start:   cd ${install_dir} && docker compose up -d"
     echo "  Stop:    cd ${install_dir} && docker compose down"
@@ -175,9 +190,8 @@ main() {
     setup_directories "$install_dir" || { cleanup; exit 1; }
     generate_docker_compose "$install_dir" "$port" || { cleanup; exit 1; }
     start_services "$install_dir" || { cleanup; exit 1; }
-    local password=$(generate_password)
-    sleep 3
-    show_result "$install_dir" "$port" "$password"
+    sleep 5
+    show_result "$install_dir" "$port"
 }
 
 main "$@"
