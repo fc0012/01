@@ -75,9 +75,9 @@ RUN apt-get update && \
 
 COPY src/static /app/vertex/app/static
 
-RUN useradd -d /app/vertex -s /bin/sh vt && \
-  chown -R vt /vertex && \
-  chmod +x /vertex
+RUN useradd -d /app/vertex -s /bin/sh vt || true && \
+  chown -R vt:vt /vertex /app/vertex || true && \
+  chmod 755 /vertex
 
 EXPOSE 3000
 
