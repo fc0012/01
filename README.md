@@ -20,17 +20,15 @@ wget -qO- https://raw.githubusercontent.com/fc0012/vertex/stable/install.sh | ba
 
 安装完成后，访问 `http://你的服务器IP:3000` 即可使用。
 
-#### 交流群组
+## 功能特性
 
-[VERTEX](https://t.me/group\_vertex)
+- RSS 订阅自动下载
+- 影视订阅追剧
+- 定时脚本任务
+- Python/Shell 脚本支持
+- 多下载器管理
+- 站点数据监控
 
-#### 特别事项
+## Wiki
 
-Vertex 目前已处于不新增功能，仅做问题修复的状态。
-
-#### Wiki
 [https://wiki.vertex-app.top](https://wiki.vertex-app.top)
-
-#### 打赏，如果你觉得这个项目对你有帮助，可以对我打赏，感谢！
-
-<figure><img src="https://lswl.in/assets/images/alipay_qrcode.png" alt="" width="375"><figcaption></figcaption></figure>
