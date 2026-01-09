@@ -9,7 +9,7 @@ const RULE_DIR = path.join(__dirname, '../data/rule/delete');
  * 获取默认删种规则定义列表
  * @returns {Array<Object>} 默认规则定义数组
  */
-function getDefaultRuleDefinitions() {
+function getDefaultRuleDefinitions () {
   return [
     // Oracle 剩余空间系列规则
     {
@@ -418,12 +418,11 @@ function getDefaultRuleDefinitions() {
   ];
 }
 
-
 /**
  * 检查规则目录是否存在规则文件
  * @returns {boolean} 是否存在规则文件
  */
-function hasExistingRules() {
+function hasExistingRules () {
   try {
     if (!fs.existsSync(RULE_DIR)) {
       return false;
@@ -438,7 +437,7 @@ function hasExistingRules() {
 /**
  * 确保规则目录存在
  */
-function ensureRuleDirectory() {
+function ensureRuleDirectory () {
   if (!fs.existsSync(RULE_DIR)) {
     fs.mkdirSync(RULE_DIR, { recursive: true });
   }
@@ -448,7 +447,7 @@ function ensureRuleDirectory() {
  * 生成8位UUID
  * @returns {string} 8位UUID
  */
-function generateRuleId() {
+function generateRuleId () {
   return uuid.v4().split('-')[0];
 }
 
@@ -457,7 +456,7 @@ function generateRuleId() {
  * 如果规则目录为空，则创建默认规则
  * @returns {boolean} 是否创建了默认规则
  */
-function initDefaultRules() {
+function initDefaultRules () {
   try {
     // 检查是否已有规则
     if (hasExistingRules()) {
