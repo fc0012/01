@@ -11,7 +11,6 @@ import selectRule from './selectRule';
 import rss from './rss';
 import script from './script';
 import watch from './watch';
-import subscribe from './subscribe';
 import torrent from './torrent';
 import log from './log';
 
@@ -28,7 +27,6 @@ const api = {
   selectRule,
   rss,
   script,
-  subscribe,
   torrent,
   log,
   watch

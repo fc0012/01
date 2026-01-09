@@ -6,14 +6,9 @@ import Layout from '@/pages/Layout';
 
 import DashboardIndex from '@/pages/dashboard/Index';
 
-import BaseServer from '@/pages/base/Server';
 import BaseDownloader from '@/pages/base/Downloader';
-import BaseSite from '@/pages/base/Site';
-import BaseNotification from '@/pages/base/Notification';
 
-import MetricServer from '@/pages/metric/Server';
 import MetricDownloader from '@/pages/metric/Downloader';
-import MetricSite from '@/pages/metric/Site';
 
 import RuleDelete from '@/pages/rule/Delete';
 import RuleLink from '@/pages/rule/Link';
@@ -28,8 +23,7 @@ import TaskWatchCategory from '@/pages/task/WatchCategory';
 import TaskScript from '@/pages/task/Script';
 import TaskCodeScript from '@/pages/task/CodeScript';
 
-import GuideRss from '@/pages/guide/Rss';
-import GuideSubsribe from '@/pages/guide/Subscribe';
+
 
 import ToolMikanHistory from '@/pages/tool/MikanHistory';
 import ToolNetworkTest from '@/pages/tool/NetworkTest';
@@ -53,17 +47,13 @@ import SettingMenu from '@/pages/setting/Menu';
 import SettingBackup from '@/pages/setting/Backup';
 import SettingCookieCloud from '@/pages/setting/CookieCloud';
 
-import SubscribeList from '@/pages/subscribe/List';
-import SubscribeDetail from '@/pages/subscribe/Detail';
-import SubscribeAdd from '@/pages/subscribe/Add';
-import SubscribeSearch from '@/pages/subscribe/Search';
+
 
 import HistoryRss from '@/pages/history/Rss';
 import HistorySubsribe from '@/pages/history/Subscribe';
 import HistoryWatchCategory from '@/pages/history/WatchCategory';
 
-import MixSearch from '@/pages/mix/Search';
-import MixDownloader from '@/pages/mix/Downloader';
+
 
 import Login from '@/pages/user/Login';
 
@@ -99,25 +89,13 @@ const index = {
 const metric = {
   path: 'metric',
   component: Layout,
-  redirect: '/metric/server',
+  redirect: '/metric/downloader',
   children: [
     {
-      path: 'server',
-      component: MetricServer,
-      meta: {
-        title: '服务器 - 数据监控'
-      }
-    }, {
       path: 'downloader',
       component: MetricDownloader,
       meta: {
         title: '下载器 - 数据监控'
-      }
-    }, {
-      path: 'site',
-      component: MetricSite,
-      meta: {
-        title: '站点 - 数据监控'
       }
     }
   ]
@@ -159,31 +137,13 @@ const rule = {
 const base = {
   path: 'base',
   component: Layout,
-  redirect: '/base/server',
+  redirect: '/base/downloader',
   children: [
     {
-      path: 'server',
-      component: BaseServer,
-      meta: {
-        title: '服务器 - 基础组件'
-      }
-    }, {
       path: 'downloader',
       component: BaseDownloader,
       meta: {
         title: '下载器 - 基础组件'
-      }
-    }, {
-      path: 'site',
-      component: BaseSite,
-      meta: {
-        title: '站点 - 基础组件'
-      }
-    }, {
-      path: 'notification',
-      component: BaseNotification,
-      meta: {
-        title: '通知工具 - 基础组件'
       }
     }
   ]
@@ -345,47 +305,9 @@ const history = {
   ]
 };
 
-const mix = {
-  path: 'mix',
-  component: Layout,
-  redirect: '/mix/search',
-  children: [
-    {
-      path: 'search',
-      component: MixSearch,
-      meta: {
-        title: '种子搜索 - 聚合操作'
-      }
-    }, {
-      path: 'downloader',
-      component: MixDownloader,
-      meta: {
-        title: '种子聚合 - 聚合操作'
-      }
-    }
-  ]
-};
 
-const guide = {
-  path: 'guide',
-  component: Layout,
-  redirect: '/guide/rss',
-  children: [
-    {
-      path: 'rss',
-      component: GuideRss,
-      meta: {
-        title: 'RSS 引导 - 任务引导'
-      }
-    }, {
-      path: 'subscribe',
-      component: GuideSubsribe,
-      meta: {
-        title: '订阅引导 - 任务引导'
-      }
-    }
-  ]
-};
+
+
 
 const tool = {
   path: 'tool',
@@ -450,38 +372,7 @@ const tool = {
   ]
 };
 
-const subscribe = {
-  path: 'subscribe',
-  component: Layout,
-  redirect: '/subscribe/list',
-  children: [
-    {
-      path: 'list',
-      component: SubscribeList,
-      meta: {
-        title: '订阅列表 - 影视订阅'
-      }
-    }, {
-      path: 'detail/:douban/:id',
-      component: SubscribeDetail,
-      meta: {
-        title: '详情 - 影视订阅'
-      }
-    }, {
-      path: 'search',
-      component: SubscribeSearch,
-      meta: {
-        title: '影视搜索 - 影视订阅'
-      }
-    }, {
-      path: 'add',
-      component: SubscribeAdd,
-      meta: {
-        title: '手动添加 - 影视订阅'
-      }
-    }
-  ]
-};
+
 
 const routes = [{
   path: '/',
@@ -496,11 +387,8 @@ const routes = [{
     task,
     tool,
     info,
-    guide,
-    subscribe,
     setting,
-    history,
-    mix
+    history
   ]
 }];
 

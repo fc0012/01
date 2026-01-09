@@ -324,9 +324,11 @@ export default {
         const res = await this.$api().script.getLogs(record.id);
         if (res.success) {
           this.executionLogs = (res.data || []).sort((a, b) => b.timestamp - a.timestamp);
+        } else {
+          this.$message().error(res.message || '获取日志失败');
         }
       } catch (e) {
-        this.$message().error(e.message);
+        this.$message().error(e.message || '获取日志失败');
       }
       this.logsLoading = false;
     },

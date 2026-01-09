@@ -25,14 +25,6 @@ class UserMod {
         path: '/metric',
         icon: ['fas', 'chart-line'],
         sub: [{
-          title: '站点',
-          path: '/metric/site',
-          icon: ['fas', 'location']
-        }, {
-          title: '服务器',
-          path: '/metric/server',
-          icon: ['fas', 'server']
-        }, {
           title: '下载器',
           path: '/metric/downloader',
           icon: ['fas', 'download']
@@ -42,21 +34,9 @@ class UserMod {
         path: '/base',
         icon: ['fas', 'circle-nodes'],
         sub: [{
-          title: '站点',
-          path: '/base/site',
-          icon: ['fas', 'location']
-        }, {
-          title: '服务器',
-          path: '/base/server',
-          icon: ['fas', 'server']
-        }, {
           title: '下载器',
           path: '/base/downloader',
           icon: ['fas', 'download']
-        }, {
-          title: '通知工具',
-          path: '/base/notification',
-          icon: ['fas', 'bell']
         }]
       }, {
         title: '规则组件',
@@ -113,36 +93,6 @@ class UserMod {
           icon: ['fas', 'link']
         }]
       }, {
-        title: '影视订阅',
-        path: '/subscribe',
-        icon: ['fas', 'tv'],
-        sub: [{
-          title: '订阅列表',
-          path: '/subscribe/list',
-          icon: ['fas', 'square-check']
-        }, {
-          title: '影视搜索',
-          path: '/subscribe/search',
-          icon: ['fas', 'magnifying-glass']
-        }, {
-          title: '手动添加',
-          path: '/subscribe/add',
-          icon: ['fas', 'plus']
-        }]
-      }, {
-        title: '聚合操作',
-        path: '/mix',
-        icon: ['fas', 'share-nodes'],
-        sub: [{
-          title: '种子搜索',
-          path: '/mix/search',
-          icon: ['fab', 'searchengin']
-        }, {
-          title: '种子聚合',
-          path: '/mix/downloader',
-          icon: ['fas', 'cloud']
-        }]
-      }, {
         title: '任务历史',
         path: '/history',
         icon: ['fas', 'clock-rotate-left'],
@@ -191,19 +141,6 @@ class UserMod {
           title: '下载器日志',
           path: '/tool/clientLog',
           icon: ['fas', 'note-sticky']
-        }]
-      }, {
-        title: '任务引导',
-        path: '/guide',
-        icon: ['fas', 'route'],
-        sub: [{
-          title: 'RSS 引导',
-          path: '/guide/rss',
-          icon: ['fas', 'rss']
-        }, {
-          title: '订阅引导',
-          path: '/guide/subscribe',
-          icon: ['fas', 'calendar-check']
         }]
       }, {
         title: '系统设置',

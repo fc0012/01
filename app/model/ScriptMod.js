@@ -106,6 +106,7 @@ class ScriptMod {
   }
 
   getExecutionLogs (scriptId) {
+    this._ensureLogsDirectory();
     return this._loadExecutionLogs(scriptId);
   }
 
