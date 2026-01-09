@@ -23,6 +23,7 @@ const sites = require('./libs/site');
 const logger = require('./libs/logger');
 const util = require('./libs/util');
 const config = require('./libs/config');
+const { initDefaultRules } = require('./libs/defaultDeleteRules');
 const { execSync } = require('child_process');
 logger.use(app);
 
@@ -38,6 +39,13 @@ const initPush = function () {
 };
 
 const init = function () {
+  // Initialize default delete rules (with error handling to prevent startup blocking)
+  try {
+    initDefaultRules();
+  } catch (e) {
+    logger.error('初始化默认删种规则失败:', e);
+  }
+
   global.clearDatabase = cron.schedule('1 0 * * *', async () => {
     try {
       await util.runRecord('delete from torrent_flow where time < ?', [moment().unix() - 1]);

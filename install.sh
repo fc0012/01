@@ -130,21 +130,38 @@ start_services() {
     local install_dir="${1:-$INSTALL_DIR}"
     print_step "3" "4" "Starting VERTEX"
     configure_mirror
-    print_info "Pulling image..."
     cd "$install_dir"
-    
-    # Suppress warnings and verbose output
+
+    # Pull image with timer display
+    local start_time=$(date +%s)
+    echo -ne "  ${BLUE}▶${NC} Pulling image... ${YELLOW}0s${NC}"
+
     if docker compose version &> /dev/null 2>&1; then
-        docker compose pull 2>&1 | grep -v "WARN\|version" || true
-        print_success "Image pulled"
-        print_info "Starting container..."
-        docker compose up -d 2>&1 | grep -v "WARN\|version" || true
+        docker compose pull -q 2>/dev/null &
     else
-        docker-compose pull 2>&1 | grep -v "WARN\|version" || true
-        print_success "Image pulled"
-        print_info "Starting container..."
-        docker-compose up -d 2>&1 | grep -v "WARN\|version" || true
+        docker-compose pull -q 2>/dev/null &
     fi
+    local pull_pid=$!
+
+    # Show elapsed time while pulling
+    while kill -0 $pull_pid 2>/dev/null; do
+        local elapsed=$(($(date +%s) - start_time))
+        echo -ne "\r  ${BLUE}▶${NC} Pulling image... ${YELLOW}${elapsed}s${NC}  "
+        sleep 1
+    done
+    wait $pull_pid
+
+    local total_time=$(($(date +%s) - start_time))
+    echo -ne "\r  ${GREEN}✔${NC} Image pulled (${total_time}s)          \n"
+
+    # Start container quietly
+    echo -ne "  ${BLUE}▶${NC} Starting container..."
+    if docker compose version &> /dev/null 2>&1; then
+        docker compose up -d 2>/dev/null
+    else
+        docker-compose up -d 2>/dev/null
+    fi
+    echo -e "\r  ${GREEN}✔${NC} Container started     "
     print_success "VERTEX is running"
 }
 
