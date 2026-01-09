@@ -26,6 +26,7 @@ import TaskLink from '@/pages/task/Link';
 import TaskBulkLink from '@/pages/task/BulkLink';
 import TaskWatchCategory from '@/pages/task/WatchCategory';
 import TaskScript from '@/pages/task/Script';
+import TaskCodeScript from '@/pages/task/CodeScript';
 
 import GuideRss from '@/pages/guide/Rss';
 import GuideSubsribe from '@/pages/guide/Subscribe';
@@ -306,6 +307,12 @@ const task = {
       component: TaskScript,
       meta: {
         title: '定时脚本 - 任务配置'
+      }
+    }, {
+      path: 'codeScript',
+      component: TaskCodeScript,
+      meta: {
+        title: 'Python/Shell 脚本 - 任务配置'
       }
     }
   ]

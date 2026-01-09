@@ -26,10 +26,17 @@ const MAX_EXECUTION_LOGS = 10;
  */
 const EXECUTION_LOGS_DIR = path.join(__dirname, '../data/script-logs');
 
+/**
+ * Path to temporary scripts directory for inline code execution
+ */
+const TEMP_SCRIPTS_DIR = path.join(__dirname, '../data/temp-scripts');
+
 class ScriptMod {
   constructor () {
     // Ensure execution logs directory exists
     this._ensureLogsDirectory();
+    // Ensure temp scripts directory exists
+    this._ensureTempScriptsDirectory();
   }
 
   /**
@@ -44,6 +51,53 @@ class ScriptMod {
         logger.error('Failed to create execution logs directory:', e);
       }
     }
+  }
+
+  /**
+   * Ensure the temp scripts directory exists
+   * @private
+   */
+  _ensureTempScriptsDirectory () {
+    if (!fs.existsSync(TEMP_SCRIPTS_DIR)) {
+      try {
+        fs.mkdirSync(TEMP_SCRIPTS_DIR, { recursive: true });
+      } catch (e) {
+        logger.error('Failed to create temp scripts directory:', e);
+      }
+    }
+  }
+
+  /**
+   * Get file extension for interpreter
+   * @param {string} interpreter - Interpreter name
+   * @returns {string} File extension
+   * @private
+   */
+  _getExtensionForInterpreter (interpreter) {
+    const extensions = {
+      python: '.py',
+      python3: '.py',
+      node: '.js',
+      bash: '.sh',
+      sh: '.sh'
+    };
+    return extensions[interpreter] || '.sh';
+  }
+
+  /**
+   * Create a temporary script file from inline code
+   * @param {string} scriptId - Script ID
+   * @param {string} codeContent - Code content
+   * @param {string} interpreter - Interpreter name
+   * @returns {string} Path to the temporary script file
+   * @private
+   */
+  _createTempScript (scriptId, codeContent, interpreter) {
+    this._ensureTempScriptsDirectory();
+    const ext = this._getExtensionForInterpreter(interpreter);
+    const tempPath = path.join(TEMP_SCRIPTS_DIR, `${scriptId}${ext}`);
+    fs.writeFileSync(tempPath, codeContent, { mode: 0o755 });
+    return tempPath;
   }
 
   /**
@@ -156,6 +210,15 @@ class ScriptMod {
     if (scriptSet.type === 'external') {
       return new ExternalScript(scriptSet);
     }
+    if (scriptSet.type === 'code') {
+      // For inline code, create a temp file and use ExternalScript
+      const tempPath = this._createTempScript(scriptSet.id, scriptSet.codeContent, scriptSet.interpreter);
+      return new ExternalScript({
+        ...scriptSet,
+        scriptPath: tempPath,
+        workingDir: TEMP_SCRIPTS_DIR
+      });
+    }
     return new Script(scriptSet);
   }
 
@@ -180,6 +243,18 @@ class ScriptMod {
         ? scriptSet.interpreter 
         : 'bash';
       scriptSet.customCommand = scriptSet.customCommand || '';
+      scriptSet.envVars = Array.isArray(scriptSet.envVars) ? scriptSet.envVars : [];
+      scriptSet.timeout = typeof scriptSet.timeout === 'number' && scriptSet.timeout > 0 
+        ? scriptSet.timeout 
+        : DEFAULT_TIMEOUT;
+    }
+    
+    // Add inline code fields with defaults if type is code
+    if (scriptSet.type === 'code') {
+      scriptSet.codeContent = scriptSet.codeContent || '';
+      scriptSet.interpreter = VALID_INTERPRETERS.includes(scriptSet.interpreter) 
+        ? scriptSet.interpreter 
+        : 'python3';
       scriptSet.envVars = Array.isArray(scriptSet.envVars) ? scriptSet.envVars : [];
       scriptSet.timeout = typeof scriptSet.timeout === 'number' && scriptSet.timeout > 0 
         ? scriptSet.timeout 
@@ -331,6 +406,60 @@ class ScriptMod {
           };
         } catch (e) {
           logger.error(`External script execution error:`, e);
+          
+          // Store error log
+          this.addExecutionLog(options.id, {
+            timestamp: startTime,
+            exitCode: 1,
+            stdout: '',
+            stderr: e.message,
+            duration: Date.now() - startTime,
+            timedOut: false,
+            success: false,
+            error: e.message
+          });
+          
+          return { success: false, error: e.message };
+        }
+      }
+      
+      // Handle inline code execution (Python/Shell)
+      if (scriptConfig.type === 'code') {
+        try {
+          // Create temp script file
+          const tempPath = this._createTempScript(scriptConfig.id, scriptConfig.codeContent, scriptConfig.interpreter);
+          
+          const externalScript = new ExternalScript({
+            ...scriptConfig,
+            scriptPath: tempPath,
+            workingDir: TEMP_SCRIPTS_DIR
+          });
+          const result = await externalScript.execute();
+          externalScript.destroy();
+          
+          const logEntry = {
+            timestamp: startTime,
+            exitCode: result.exitCode,
+            stdout: result.stdout,
+            stderr: result.stderr,
+            duration: result.duration,
+            timedOut: result.timedOut,
+            success: result.exitCode === 0
+          };
+          
+          // Store execution log
+          this.addExecutionLog(options.id, logEntry);
+          
+          return {
+            success: result.exitCode === 0,
+            exitCode: result.exitCode,
+            stdout: result.stdout,
+            stderr: result.stderr,
+            duration: result.duration,
+            timedOut: result.timedOut
+          };
+        } catch (e) {
+          logger.error(`Inline code execution error:`, e);
           
           // Store error log
           this.addExecutionLog(options.id, {

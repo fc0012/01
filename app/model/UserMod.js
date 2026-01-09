@@ -100,6 +100,10 @@ class UserMod {
           path: '/task/script',
           icon: ['fas', 'clock']
         }, {
+          title: 'Python/Shell',
+          path: '/task/codeScript',
+          icon: ['fas', 'terminal']
+        }, {
           title: '链接文件',
           path: '/task/link',
           icon: ['fas', 'link']

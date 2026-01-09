@@ -20,7 +20,8 @@
         </template>
         <template v-if="column.dataIndex === 'type'">
           <a-tag color="blue" v-if="record.type === 'external'">外部脚本</a-tag>
-          <a-tag color="green" v-else>内联脚本</a-tag>
+          <a-tag color="purple" v-else-if="record.type === 'code'">内联代码</a-tag>
+          <a-tag color="green" v-else>内联JS</a-tag>
         </template>
         <template v-if="column.title === '操作'">
           <span>
@@ -77,21 +78,106 @@
         <a-form-item
           label="脚本类型"
           name="type"
-          extra="选择内联 JavaScript 脚本或外部脚本文件">
+          extra="选择脚本类型：内联JS在VERTEX环境运行，外部脚本使用Python/Shell等解释器">
           <a-radio-group v-model:value="script.type" @change="onTypeChange">
-            <a-radio value="inline">内联脚本</a-radio>
-            <a-radio value="external">外部脚本</a-radio>
+            <a-radio value="inline">内联 JavaScript</a-radio>
+            <a-radio value="code">内联代码 (Python/Shell)</a-radio>
+            <a-radio value="external">外部脚本文件</a-radio>
           </a-radio-group>
         </a-form-item>
 
         <!-- Inline Script Code (shown when type is 'inline') -->
         <a-form-item
-          v-if="script.type !== 'external'"
+          v-if="script.type === 'inline'"
           label="Code"
           name="script"
-          :rules="[{ required: script.type !== 'external', message: '${label}不可为空! ' }]">
+          :rules="[{ required: script.type === 'inline', message: '${label}不可为空! ' }]">
           <a-textarea size="small" v-model:value="script.script" :rows="12"/>
         </a-form-item>
+
+        <!-- Inline Code (Python/Shell) - type is 'code' -->
+        <template v-if="script.type === 'code'">
+          <a-form-item
+            label="解释器"
+            name="interpreter"
+            extra="选择用于执行代码的解释器">
+            <a-select 
+              size="small" 
+              v-model:value="script.interpreter"
+              style="width: 200px;">
+              <a-select-option value="python3">python3</a-select-option>
+              <a-select-option value="python">python</a-select-option>
+              <a-select-option value="bash">bash</a-select-option>
+              <a-select-option value="sh">sh</a-select-option>
+              <a-select-option value="node">node</a-select-option>
+            </a-select>
+          </a-form-item>
+
+          <a-form-item
+            label="代码"
+            name="codeContent"
+            extra="直接粘贴 Python/Shell 代码，无需上传文件"
+            :rules="[{ required: script.type === 'code', message: '代码不可为空!' }]">
+            <a-textarea 
+              size="small" 
+              v-model:value="script.codeContent" 
+              :rows="16"
+              placeholder="# 直接粘贴你的 Python/Shell 代码&#10;# 例如:&#10;import requests&#10;print('Hello from VERTEX!')"/>
+          </a-form-item>
+
+          <a-form-item
+            label="超时时间"
+            name="timeout"
+            extra="脚本执行超时时间（秒），默认 300 秒">
+            <a-input-number 
+              size="small" 
+              v-model:value="script.timeout"
+              :min="1"
+              :max="86400"
+              style="width: 120px;"/>
+            <span style="margin-left: 8px;">秒</span>
+          </a-form-item>
+
+          <!-- Environment Variables Editor for code type -->
+          <a-form-item
+            label="环境变量"
+            name="envVars"
+            extra="设置脚本执行时的环境变量，如 COOKIE、API_KEY 等">
+            <div class="env-vars-editor">
+              <div 
+                v-for="(envVar, index) in script.envVars" 
+                :key="index" 
+                class="env-var-row">
+                <a-input 
+                  size="small" 
+                  v-model:value="envVar.key"
+                  placeholder="变量名"
+                  style="width: 150px; margin-right: 8px;"/>
+                <a-input-password 
+                  size="small" 
+                  v-model:value="envVar.value"
+                  placeholder="变量值"
+                  style="width: 250px; margin-right: 8px;"
+                  :visibilityToggle="true"/>
+                <a-button 
+                  size="small" 
+                  type="text" 
+                  danger 
+                  @click="removeEnvVar(index)">
+                  <template #icon><delete-outlined /></template>
+                </a-button>
+              </div>
+              <a-button 
+                size="small" 
+                type="dashed" 
+                @click="addEnvVar"
+                style="margin-top: 8px;">
+                <template #icon><plus-outlined /></template>
+                添加环境变量
+              </a-button>
+            </div>
+          </a-form-item>
+        </template>
 
         <!-- External Script Configuration Fields (9.2) -->
         <template v-if="script.type === 'external'">
@@ -305,10 +391,12 @@ export default {
         cron: '* * * * *',
         type: 'inline',
         script: 'logger.info(\'VERTEX IS THE BEST!\')',
+        // Inline code (Python/Shell) defaults
+        codeContent: '',
         // External script defaults
         scriptPath: '',
         workingDir: '',
-        interpreter: 'bash',
+        interpreter: 'python3',
         customCommand: '',
         envVars: [],
         timeout: 300
@@ -353,6 +441,18 @@ export default {
         }
         if (this.script.interpreter === 'custom' && !this.script.customCommand) {
           this.$message().error('自定义命令不可为空!');
+          return;
+        }
+        // Filter out empty environment variables
+        this.script.envVars = (this.script.envVars || []).filter(
+          env => env.key && env.key.trim()
+        );
+      }
+      
+      // Validate inline code fields
+      if (this.script.type === 'code') {
+        if (!this.script.codeContent || !this.script.codeContent.trim()) {
+          this.$message().error('代码不可为空!');
           return;
         }
         // Filter out empty environment variables
