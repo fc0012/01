@@ -322,6 +322,42 @@ class ScriptMod {
       }
       options = scriptConfig;
     }
+    // Handle unsaved code type scripts (direct execution)
+    if (options.type === 'code' && options.codeContent) {
+      try {
+        const tempId = 'temp_' + Date.now();
+        const tempPath = this._createTempScript(tempId, options.codeContent, options.interpreter || 'python3');
+        const externalScript = new ExternalScript({
+          id: tempId,
+          alias: options.alias || 'Temp Script',
+          scriptPath: tempPath,
+          workingDir: TEMP_SCRIPTS_DIR,
+          interpreter: options.interpreter || 'python3',
+          envVars: options.envVars || [],
+          timeout: options.timeout || 300
+        });
+        const result = await externalScript.execute();
+        externalScript.destroy();
+        // Clean up temp file
+        try {
+          fs.unlinkSync(tempPath);
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+        return {
+          success: result.exitCode === 0,
+          exitCode: result.exitCode,
+          stdout: result.stdout,
+          stderr: result.stderr,
+          duration: result.duration,
+          timedOut: result.timedOut
+        };
+      } catch (e) {
+        logger.error('Temp code execution error:', e);
+        return { success: false, error: e.message };
+      }
+    }
+    // Handle inline JavaScript scripts
     if (options.script) {
       try {
         // eslint-disable-next-line no-eval

@@ -18,7 +18,7 @@ export default {
     return await post(url, script);
   },
   getLogs: async (id) => {
-    const url = '/api/script/logs';
-    return await get(url, { id });
+    const url = `/api/script/logs?id=${id}&_=` + Math.random();
+    return await get(url);
   }
 };
