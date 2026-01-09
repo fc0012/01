@@ -153,7 +153,7 @@ class ScriptMod {
    */
   addExecutionLog (scriptId, logEntry) {
     const logs = this._loadExecutionLogs(scriptId);
-    
+
     // Add the new log entry with timestamp if not present
     const entry = {
       scriptId,
@@ -166,14 +166,14 @@ class ScriptMod {
       success: logEntry.success !== undefined ? logEntry.success : (logEntry.exitCode === 0),
       error: logEntry.error || null
     };
-    
+
     logs.push(entry);
-    
+
     // Keep only the most recent logs
     while (logs.length > MAX_EXECUTION_LOGS) {
       logs.shift();
     }
-    
+
     this._saveExecutionLogs(scriptId, logs);
   }
 
@@ -229,12 +229,12 @@ class ScriptMod {
    */
   _normalizeConfig (options) {
     const scriptSet = { ...options };
-    
+
     // Set default type to 'inline' for backward compatibility
     if (!scriptSet.type) {
       scriptSet.type = 'inline';
     }
-    
+
     // Add external script fields with defaults if type is external
     if (scriptSet.type === 'external') {
       scriptSet.scriptPath = scriptSet.scriptPath || '';
@@ -248,7 +248,7 @@ class ScriptMod {
         ? scriptSet.timeout 
         : DEFAULT_TIMEOUT;
     }
-    
+
     // Add inline code fields with defaults if type is code
     if (scriptSet.type === 'code') {
       scriptSet.codeContent = scriptSet.codeContent || '';
@@ -260,7 +260,7 @@ class ScriptMod {
         ? scriptSet.timeout 
         : DEFAULT_TIMEOUT;
     }
-    
+
     return scriptSet;
   }
 
@@ -273,9 +273,9 @@ class ScriptMod {
     if (!scriptPath || typeof scriptPath !== 'string') {
       return { valid: false, error: 'Script path is required' };
     }
-    
+
     const normalizedPath = path.resolve(scriptPath);
-    
+
     if (!fs.existsSync(normalizedPath)) {
       return { valid: false, error: `Script file not found: ${scriptPath}` };
     }
@@ -288,7 +288,7 @@ class ScriptMod {
     } catch (e) {
       return { valid: false, error: `Cannot access script file: ${e.message}` };
     }
-    
+
     return { valid: true };
   }
 
@@ -296,7 +296,7 @@ class ScriptMod {
     const id = util.uuid.v4().split('-')[0];
     const scriptSet = this._normalizeConfig(options);
     scriptSet.id = id;
-    
+
     // Validate external script path if type is external
     if (scriptSet.type === 'external' && scriptSet.scriptPath) {
       const validation = this.validateScriptPath(scriptSet.scriptPath);
@@ -304,7 +304,7 @@ class ScriptMod {
         return { success: false, message: validation.error };
       }
     }
-    
+
     fs.writeFileSync(path.join(__dirname, '../data/script/', id + '.json'), JSON.stringify(scriptSet, null, 2));
     if (global.runningScript[id]) global.runningScript[id].destroy();
     if (scriptSet.enable) global.runningScript[id] = this._createScriptInstance(scriptSet);
@@ -314,7 +314,7 @@ class ScriptMod {
   delete (options) {
     // Delete execution logs for this script
     this._deleteExecutionLogs(options.id);
-    
+
     fs.unlinkSync(path.join(__dirname, '../data/script/', options.id + '.json'));
     if (global.runningScript[options.id]) global.runningScript[options.id].destroy();
     return '删除 Script 成功';
@@ -322,7 +322,7 @@ class ScriptMod {
 
   modify (options) {
     const scriptSet = this._normalizeConfig(options);
-    
+
     // Validate external script path if type is external
     if (scriptSet.type === 'external' && scriptSet.scriptPath) {
       const validation = this.validateScriptPath(scriptSet.scriptPath);
@@ -330,7 +330,7 @@ class ScriptMod {
         return { success: false, message: validation.error };
       }
     }
-    
+
     fs.writeFileSync(path.join(__dirname, '../data/script/', options.id + '.json'), JSON.stringify(scriptSet, null, 2));
     if (global.runningScript[options.id]) global.runningScript[options.id].destroy();
     if (scriptSet.enable) global.runningScript[options.id] = this._createScriptInstance(scriptSet);
@@ -368,7 +368,7 @@ class ScriptMod {
    */
   async run (options) {
     const startTime = Date.now();
-    
+
     // If options contains an id, load the script configuration
     if (options.id) {
       const scriptConfig = this.get(options.id);

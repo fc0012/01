@@ -6,7 +6,7 @@ const logger = require('../libs/logger');
 
 /**
  * ExternalScript class for executing external script files (Python, Shell, Node.js, etc.)
- * 
+ *
  * Supports:
  * - Multiple interpreters (python, python3, node, bash, sh)
  * - Custom command execution
@@ -27,11 +27,11 @@ class ExternalScript {
     this.envVars = config.envVars || [];
     this.timeout = config.timeout || 300;
     this.enable = config.enable !== false;
-    
+
     this.job = null;
     this.currentProcess = null;
     this.executionLogs = [];
-    
+
     // Start cron job if enabled and cron expression is provided
     if (this.enable && this.cron) {
       this._startCronJob();
@@ -45,7 +45,7 @@ class ExternalScript {
     if (this.job) {
       this.job.stop();
     }
-    
+
     this.job = cron.schedule(this.cron, async () => {
       try {
         await this.execute();
@@ -87,13 +87,13 @@ class ExternalScript {
    */
   _buildEnv () {
     const env = { ...process.env };
-    
+
     for (const envVar of this.envVars) {
       if (envVar.key && envVar.value !== undefined) {
         env[envVar.key] = envVar.value;
       }
     }
-    
+
     return env;
   }
 
@@ -164,10 +164,10 @@ class ExternalScript {
         timeoutHandle = setTimeout(() => {
           timedOut = true;
           logger.warn(`ExternalScript [${this.alias}] timed out after ${this.timeout} seconds`);
-          
+
           if (this.currentProcess) {
             this.currentProcess.kill('SIGTERM');
-            
+
             // Force kill after 5 seconds if still running
             setTimeout(() => {
               if (this.currentProcess && !this.currentProcess.killed) {
@@ -183,10 +183,10 @@ class ExternalScript {
         if (timeoutHandle) {
           clearTimeout(timeoutHandle);
         }
-        
+
         const duration = Date.now() - startTime;
         const exitCode = code !== null ? code : (timedOut ? -1 : 1);
-        
+
         const result = {
           exitCode,
           stdout,
@@ -214,7 +214,7 @@ class ExternalScript {
         if (timeoutHandle) {
           clearTimeout(timeoutHandle);
         }
-        
+
         const duration = Date.now() - startTime;
         const result = {
           exitCode: 1,
