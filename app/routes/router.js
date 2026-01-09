@@ -203,7 +203,6 @@ module.exports = function (app, express, router) {
   router.post('/rss/mikanSearch', ctrl.Rss.mikanSearch);
   router.post('/rss/mikanPush', ctrl.Rss.mikanPush);
 
-
   router.get('/deleteRule/list', ctrl.DeleteRule.list);
   router.post('/deleteRule/add', ctrl.DeleteRule.add);
   router.post('/deleteRule/modify', ctrl.DeleteRule.modify);
