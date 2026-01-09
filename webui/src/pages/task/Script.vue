@@ -128,14 +128,13 @@
           <a-form-item
             label="超时时间"
             name="timeout"
-            extra="脚本执行超时时间（秒），默认 300 秒">
+            extra="脚本执行超时时间（秒），0 表示无限运行">
             <a-input-number 
               size="small" 
               v-model:value="script.timeout"
-              :min="1"
-              :max="86400"
+              :min="0"
               style="width: 120px;"/>
-            <span style="margin-left: 8px;">秒</span>
+            <span style="margin-left: 8px;">秒 (0 = 无限)</span>
           </a-form-item>
 
           <!-- Environment Variables Editor for code type -->
@@ -237,14 +236,13 @@
           <a-form-item
             label="超时时间"
             name="timeout"
-            extra="脚本执行超时时间（秒），默认 300 秒">
+            extra="脚本执行超时时间（秒），0 表示无限运行">
             <a-input-number 
               size="small" 
               v-model:value="script.timeout"
-              :min="1"
-              :max="86400"
+              :min="0"
               style="width: 120px;"/>
-            <span style="margin-left: 8px;">秒</span>
+            <span style="margin-left: 8px;">秒 (0 = 无限)</span>
           </a-form-item>
 
           <!-- Environment Variables Editor (9.3) -->

@@ -4,7 +4,7 @@ LABEL build_from="https://github.com/fc0012/vertex"
 
 ENV TZ=Asia/Shanghai
 RUN \
-  apk add --no-cache gcc g++ python3 git cmake make npm libc-dev && \
+  apk add --no-cache gcc g++ python3 py3-pip python3-dev libffi-dev openssl-dev git cmake make npm libc-dev && \
   git clone https://github.com/fc0012/vertex.git /app/vertex && \
   cd /app/vertex && \
   git checkout COMMIT_ID && \
@@ -20,7 +20,13 @@ RUN \
   ln -s /app/localtime /etc/localtime && \
   ln -s /usr/bin/chromium-browser /usr/bin/chromium && \
   chmod +x /usr/bin/chromium && \
-  apk del gcc g++ python3 git cmake make npm libc-dev && \
+  pip3 install --no-cache-dir --break-system-packages \
+    requests beautifulsoup4 lxml loguru pytz bencodepy \
+    aiohttp httpx pyyaml toml \
+    pymongo redis sqlalchemy \
+    schedule apscheduler \
+    pillow qbittorrent-api deluge-client transmission-rpc && \
+  apk del gcc g++ git cmake make npm libc-dev python3-dev libffi-dev openssl-dev && \
   echo 'bind 127.0.0.1' >> /app/redis.conf && \
   echo 'daemonize yes' >> /app/redis.conf
 COPY src/static /app/vertex/app/static
