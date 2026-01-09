@@ -30,10 +30,10 @@ jobs:
         echo "CI_COMMIT_MESSAGE=$CI_COMMIT_MESSAGE" >> $GITHUB_ENV
         echo "CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH" >> $GITHUB_ENV
         echo "CI_COMMIT_SHA=${{ github.event.head_commit.id }}" >> $GITHUB_ENV
-        echo "IMAGE_TAG_LATEST=fc0012/vertex:latest" >> $GITHUB_ENV
+        echo "IMAGE_TAG_LATEST=cczc9962/vertex:latest" >> $GITHUB_ENV
         echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
-        echo "IMAGE_TAG_BRANCH=fc0012/vertex:$CI_COMMIT_BRANCH" >> $GITHUB_ENV
-        echo "IMAGE_TAG_TIMEVERSION=fc0012/vertex:$TIMEVERSION" >> $GITHUB_ENV
+        echo "IMAGE_TAG_BRANCH=cczc9962/vertex:$CI_COMMIT_BRANCH" >> $GITHUB_ENV
+        echo "IMAGE_TAG_TIMEVERSION=cczc9962/vertex:$TIMEVERSION" >> $GITHUB_ENV
     - name: Install Dependencies
       run: |
         npm i --save-dev
@@ -83,11 +83,11 @@ jobs:
         cd docker
         sed -i 's/COMMIT_ID/'$CI_COMMIT_SHA'/' Dockerfile
         ls src/static
-        docker pull --platform linux/arm64 fc0012/vertex:latest || echo 'fail'
-        docker pull --platform linux/amd64 fc0012/vertex:latest || echo 'fail'
+        docker pull --platform linux/arm64 cczc9962/vertex:latest || echo 'fail'
+        docker pull --platform linux/amd64 cczc9962/vertex:latest || echo 'fail'
     - name: Build Docker Images
       working-directory: ./docker
       run: |
-        docker buildx build --platform linux/amd64,linux/arm64 --cache-from fc0012/vertex --tag $IMAGE_TAG_LATEST --build-arg BUILDKIT_INLINE_CACHE=1 . --push
-        docker buildx build --platform linux/amd64,linux/arm64 --cache-from fc0012/vertex --tag $IMAGE_TAG_BRANCH --build-arg BUILDKIT_INLINE_CACHE=1 . --push
-        docker buildx build --platform linux/amd64,linux/arm64 --cache-from fc0012/vertex --tag $IMAGE_TAG_TIMEVERSION --build-arg BUILDKIT_INLINE_CACHE=1 . --push
+        docker buildx build --platform linux/amd64,linux/arm64 --cache-from cczc9962/vertex --tag $IMAGE_TAG_LATEST --build-arg BUILDKIT_INLINE_CACHE=1 . --push
+        docker buildx build --platform linux/amd64,linux/arm64 --cache-from cczc9962/vertex --tag $IMAGE_TAG_BRANCH --build-arg BUILDKIT_INLINE_CACHE=1 . --push
+        docker buildx build --platform linux/amd64,linux/arm64 --cache-from cczc9962/vertex --tag $IMAGE_TAG_TIMEVERSION --build-arg BUILDKIT_INLINE_CACHE=1 . --push

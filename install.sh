@@ -13,7 +13,7 @@ NC='\033[0m'
 
 DEFAULT_INSTALL_DIR="/opt/vertex"
 DEFAULT_PORT="3000"
-VERTEX_IMAGE="fc0012/vertex:stable"
+VERTEX_IMAGE="cczc9962/vertex:stable"
 
 INSTALL_DIR=""
 CREATED_RESOURCES=()
