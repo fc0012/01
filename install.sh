@@ -1,86 +1,183 @@
 #!/bin/bash
+# VERTEX One-Click Install Script
 set -e
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
-INSTALL_DIR="/opt/vertex"
-PORT="3000"
-IMAGE="lswl/vertex:stable"
 
-echo ""
-echo "=============================================="
-echo "       VERTEX One-Click Install Script       "
-echo "=============================================="
-echo ""
+DEFAULT_INSTALL_DIR="/opt/vertex"
+DEFAULT_PORT="3000"
+VERTEX_IMAGE="lswl/vertex:stable"
 
-# Check Docker
-echo -e "${BLUE}[INFO]${NC} Checking Docker..."
-if ! command -v docker &> /dev/null; then
-    echo -e "${RED}[ERROR]${NC} Docker is not installed."
-    echo "Please install Docker first: curl -fsSL https://get.docker.com | bash"
-    exit 1
-fi
-echo -e "${GREEN}[OK]${NC} Docker is installed"
+INSTALL_DIR=""
+CREATED_RESOURCES=()
 
-# Check Docker Compose
-echo -e "${BLUE}[INFO]${NC} Checking Docker Compose..."
-if docker compose version &> /dev/null; then
-    COMPOSE_CMD="docker compose"
-elif command -v docker-compose &> /dev/null; then
-    COMPOSE_CMD="docker-compose"
-else
-    echo -e "${RED}[ERROR]${NC} Docker Compose is not installed."
-    echo "Please install: sudo apt-get install docker-compose-plugin"
-    exit 1
-fi
-echo -e "${GREEN}[OK]${NC} Docker Compose is installed"
+print_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+print_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-# Create directory
-echo -e "${BLUE}[INFO]${NC} Creating installation directory..."
-mkdir -p "$INSTALL_DIR/data"
-chmod 755 "$INSTALL_DIR" "$INSTALL_DIR/data"
-echo -e "${GREEN}[OK]${NC} Directory created: $INSTALL_DIR"
+check_docker() {
+    if command -v docker &> /dev/null; then
+        print_success "Docker is installed: $(docker --version)"
+        return 0
+    else
+        print_error "Docker is not installed."
+        echo "Please install: curl -fsSL https://get.docker.com | bash"
+        return 1
+    fi
+}
 
-# Generate docker-compose.yml
-echo -e "${BLUE}[INFO]${NC} Generating docker-compose.yml..."
-cat > "$INSTALL_DIR/docker-compose.yml" << 'EOF'
+check_docker_compose() {
+    if docker compose version &> /dev/null; then
+        print_success "Docker Compose is installed: $(docker compose version)"
+        return 0
+    elif command -v docker-compose &> /dev/null; then
+        print_success "Docker Compose is installed: $(docker-compose --version)"
+        return 0
+    else
+        print_error "Docker Compose is not installed."
+        echo "Please install: sudo apt-get install docker-compose-plugin"
+        return 1
+    fi
+}
+
+check_dependencies() {
+    print_info "Checking dependencies..."
+    local has_error=0
+    check_docker || has_error=1
+    check_docker_compose || has_error=1
+    [ $has_error -eq 1 ] && { print_error "Missing dependencies."; return 1; }
+    print_success "All dependencies are installed."
+    return 0
+}
+
+
+setup_directories() {
+    local install_dir="${1:-$DEFAULT_INSTALL_DIR}"
+    INSTALL_DIR="$install_dir"
+    print_info "Setting up directory: $install_dir"
+    [ ! -d "$install_dir" ] && { mkdir -p "$install_dir" || return 1; CREATED_RESOURCES+=("$install_dir"); }
+    [ ! -d "$install_dir/data" ] && { mkdir -p "$install_dir/data" || return 1; CREATED_RESOURCES+=("$install_dir/data"); }
+    chmod 755 "$install_dir" "$install_dir/data" 2>/dev/null || true
+    print_success "Directory setup completed."
+}
+
+cleanup() {
+    [ ${#CREATED_RESOURCES[@]} -eq 0 ] && return 0
+    print_warning "Cleaning up..."
+    [ -f "$INSTALL_DIR/docker-compose.yml" ] && { cd "$INSTALL_DIR"; docker compose down 2>/dev/null || true; }
+    for ((i=${#CREATED_RESOURCES[@]}-1; i>=0; i--)); do
+        [ -e "${CREATED_RESOURCES[$i]}" ] && rm -rf "${CREATED_RESOURCES[$i]}" 2>/dev/null
+    done
+}
+
+trap 'cleanup' ERR
+trap 'echo ""; print_warning "Interrupted."; cleanup; exit 130' INT TERM
+
+generate_docker_compose() {
+    local install_dir="${1:-$INSTALL_DIR}"
+    local port="${2:-$DEFAULT_PORT}"
+    print_info "Generating docker-compose.yml..."
+    cat > "$install_dir/docker-compose.yml" << EOF
 version: '3'
 services:
   vertex:
-    image: lswl/vertex:stable
+    image: ${VERTEX_IMAGE}
     container_name: vertex
     restart: always
     ports:
-      - "3000:3000"
+      - "${port}:3000"
     volumes:
       - ./data:/vertex
     environment:
       - TZ=Asia/Shanghai
 EOF
-echo -e "${GREEN}[OK]${NC} docker-compose.yml created"
+    CREATED_RESOURCES+=("$install_dir/docker-compose.yml")
+    print_success "Generated docker-compose.yml"
+}
 
-# Start services
-echo -e "${BLUE}[INFO]${NC} Starting VERTEX..."
-cd "$INSTALL_DIR"
-$COMPOSE_CMD pull
-$COMPOSE_CMD up -d
+configure_mirror() {
+    local daemon_json="/etc/docker/daemon.json"
+    [ -f "$daemon_json" ] && return 0
+    print_info "Configuring Docker mirror..."
+    cat > "$daemon_json" << 'EOF'
+{
+  "registry-mirrors": ["https://docker.1ms.run", "https://docker.xuanyuan.me"]
+}
+EOF
+    systemctl daemon-reload 2>/dev/null || true
+    systemctl restart docker 2>/dev/null || true
+    sleep 2
+    print_success "Docker mirror configured."
+}
 
-# Wait for container
-sleep 3
+start_services() {
+    local install_dir="${1:-$INSTALL_DIR}"
+    configure_mirror
+    print_info "Pulling VERTEX image (please wait, this may take a few minutes)..."
+    cd "$install_dir"
+    if docker compose version &> /dev/null; then
+        docker compose pull --quiet && print_success "Image pulled." || docker compose pull
+        print_info "Starting VERTEX..."
+        docker compose up -d
+    else
+        docker-compose pull --quiet && print_success "Image pulled." || docker-compose pull
+        print_info "Starting VERTEX..."
+        docker-compose up -d
+    fi
+    print_success "VERTEX started successfully."
+}
 
-# Show result
-echo ""
-echo "=============================================="
-echo -e "${GREEN}[SUCCESS]${NC} VERTEX installation completed!"
-echo "=============================================="
-echo ""
-echo "Access URL: http://localhost:${PORT}"
-echo "           http://$(hostname -I | awk '{print $1}'):${PORT}"
-echo ""
-echo "Commands:"
-echo "  Start:  cd $INSTALL_DIR && $COMPOSE_CMD up -d"
-echo "  Stop:   cd $INSTALL_DIR && $COMPOSE_CMD down"
-echo "  Logs:   cd $INSTALL_DIR && $COMPOSE_CMD logs -f"
-echo ""
+generate_password() { tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 16; }
+
+show_result() {
+    local install_dir="${1:-$INSTALL_DIR}"
+    local port="${2:-$DEFAULT_PORT}"
+    local password="${3:-}"
+    local server_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    echo ""
+    echo "=============================================="
+    print_success "VERTEX installation completed!"
+    echo "=============================================="
+    echo ""
+    echo "Access URL: http://localhost:${port}"
+    echo "           http://${server_ip}:${port}"
+    echo ""
+    [ -n "$password" ] && echo "Default Credentials:" && echo "  Username: admin" && echo "  Password: ${password}" && echo ""
+    echo "Commands:"
+    echo "  Start:   cd ${install_dir} && docker compose up -d"
+    echo "  Stop:    cd ${install_dir} && docker compose down"
+    echo "  Logs:    cd ${install_dir} && docker compose logs -f"
+    echo ""
+}
+
+main() {
+    echo ""
+    echo "=============================================="
+    echo "       VERTEX One-Click Install Script       "
+    echo "=============================================="
+    echo ""
+    local install_dir="$DEFAULT_INSTALL_DIR"
+    local port="$DEFAULT_PORT"
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -d|--dir) install_dir="$2"; shift 2 ;;
+            -p|--port) port="$2"; shift 2 ;;
+            -h|--help) echo "Usage: install.sh [-d DIR] [-p PORT]"; exit 0 ;;
+            *) print_error "Unknown option: $1"; exit 1 ;;
+        esac
+    done
+    check_dependencies || exit 1
+    setup_directories "$install_dir" || { cleanup; exit 1; }
+    generate_docker_compose "$install_dir" "$port" || { cleanup; exit 1; }
+    start_services "$install_dir" || { cleanup; exit 1; }
+    local password=$(generate_password)
+    sleep 3
+    show_result "$install_dir" "$port" "$password"
+}
+
+main "$@"
