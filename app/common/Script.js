@@ -5,7 +5,7 @@ const ExternalScript = require('./ExternalScript');
 /**
  * Script class for managing scheduled script execution.
  * Supports both inline JavaScript scripts and external scripts (Python, Shell, etc.)
- * 
+ *
  * For inline scripts: executes JavaScript code via eval
  * For external scripts: delegates to ExternalScript class
  */
@@ -32,24 +32,24 @@ class Script {
     this.cron = script.cron;
     this.enable = script.enable !== false;
     this.type = script.type || 'inline';
-    
+
     // Store the full config for reference
     this._config = script;
-    
+
     // Initialize based on script type
     if (this.type === 'external') {
       // For external scripts, create an ExternalScript instance
       this.externalScript = new ExternalScript(script);
       this.script = null;
       this.job = null;
-      
+
       // ExternalScript handles its own cron scheduling
       // So we don't need to create a separate job here
     } else {
       // For inline scripts, use the existing behavior
       this.script = script.script;
       this.externalScript = null;
-      
+
       // Only schedule if enabled
       if (this.enable && this.cron) {
         this._startCronJob();
@@ -67,7 +67,7 @@ class Script {
     if (this.job) {
       this.job.stop();
     }
-    
+
     // eslint-disable-next-line no-eval
     this.job = cron.schedule(this.cron, async () => {
       // Double-check enable status before execution
@@ -96,7 +96,7 @@ class Script {
         error: 'Script is disabled'
       };
     }
-    
+
     if (this.type === 'external' && this.externalScript) {
       const result = await this.externalScript.execute();
       return {
@@ -108,7 +108,7 @@ class Script {
         timedOut: result.timedOut
       };
     }
-    
+
     // Execute inline script
     try {
       // eslint-disable-next-line no-eval
@@ -134,7 +134,7 @@ class Script {
    */
   setEnabled (enabled) {
     this.enable = enabled;
-    
+
     if (this.type === 'external' && this.externalScript) {
       // For external scripts, we need to recreate the ExternalScript instance
       // since it manages its own cron job based on enable status
@@ -172,13 +172,13 @@ class Script {
       this.job.stop();
       this.job = null;
     }
-    
+
     // Destroy external script instance
     if (this.externalScript) {
       this.externalScript.destroy();
       this.externalScript = null;
     }
-    
+
     // Remove from global registry
     if (global.runningScript && global.runningScript[this.id]) {
       delete global.runningScript[this.id];
