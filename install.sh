@@ -137,16 +137,21 @@ show_result() {
     local port="${2:-$DEFAULT_PORT}"
     local server_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
     
-    # Wait for VERTEX to generate password file (up to 30 seconds)
-    local password_file="$install_dir/data/password"
+    # Wait for VERTEX to initialize and generate password file (up to 30 seconds)
+    # Note: VERTEX stores data in /vertex inside container, mapped to $install_dir/data
+    # The password file is at /vertex/data/password -> $install_dir/data/data/password
+    local password_file="$install_dir/data/data/password"
     local password=""
     print_info "Waiting for VERTEX to initialize..."
     local retry=0
-    while [ $retry -lt 30 ] && [ ! -f "$password_file" ]; do
+    while [ $retry -lt 30 ]; do
+        if [ -f "$password_file" ]; then
+            password=$(cat "$password_file" 2>/dev/null)
+            [ -n "$password" ] && break
+        fi
         sleep 1
         retry=$((retry + 1))
     done
-    [ -f "$password_file" ] && password=$(cat "$password_file" 2>/dev/null)
     
     echo ""
     echo "=============================================="
@@ -161,7 +166,12 @@ show_result() {
     if [ -n "$password" ]; then
         echo "  Password: ${password}"
     else
-        echo "  Password: (run: cat ${install_dir}/data/password)"
+        # Check if this is a fresh install or existing install
+        if [ -f "$install_dir/data/data/setting.json" ]; then
+            echo "  Password: (existing installation - use your previous password)"
+        else
+            echo "  Password: (check: cat ${install_dir}/data/data/password)"
+        fi
     fi
     echo ""
     echo "Commands:"
