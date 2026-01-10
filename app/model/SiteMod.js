@@ -40,9 +40,8 @@ class SiteMod {
   };
 
   async listRecord () {
-    const doubanList = util.listDouban();
     const siteList = util.listSite().filter(i => !!global.runningSite[i.name])
-      .map(item => { return { ...item, used: doubanList.filter(i => i.sites.indexOf(item.name) !== -1).length !== 0 }; });
+      .map(item => { return { ...item, used: false }; });
     for (let site of siteList) {
       site = Object.assign(site, global.runningSite[site.name].info);
     }
@@ -70,9 +69,8 @@ class SiteMod {
   };
 
   async list () {
-    const doubanList = util.listDouban();
     const siteList = util.listSite()
-      .map(item => { return { ...item, used: doubanList.filter(i => i.sites.indexOf(item.name) !== -1).length !== 0, index: global.SITE.siteUrlMap[item.name] }; });
+      .map(item => { return { ...item, used: false, index: global.SITE.siteUrlMap[item.name] }; });
     for (let site of siteList) {
       site = Object.assign(site, global.runningSite[site.name]?.info || {});
     }

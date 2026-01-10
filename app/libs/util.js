@@ -375,29 +375,37 @@ exports.listRaceRuleSet = function () {
 };
 
 exports.listDouban = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/douban'));
-  const DoubanList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      const douban = _importJson(path.join(__dirname, '../data/douban', file));
-      if (douban.enable === undefined) {
-        douban.enable = true;
+  try {
+    const files = fs.readdirSync(path.join(__dirname, '../data/douban'));
+    const DoubanList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        const douban = _importJson(path.join(__dirname, '../data/douban', file));
+        if (douban.enable === undefined) {
+          douban.enable = true;
+        }
+        DoubanList.push(douban);
       }
-      DoubanList.push(douban);
     }
+    return DoubanList;
+  } catch (e) {
+    return [];
   }
-  return DoubanList;
 };
 
 exports.listDoubanSet = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/douban/set'));
-  const doubanSetList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      doubanSetList.push(_importJson(path.join(__dirname, '../data/douban/set', file)));
+  try {
+    const files = fs.readdirSync(path.join(__dirname, '../data/douban/set'));
+    const doubanSetList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        doubanSetList.push(_importJson(path.join(__dirname, '../data/douban/set', file)));
+      }
     }
+    return doubanSetList;
+  } catch (e) {
+    return [];
   }
-  return doubanSetList;
 };
 
 exports.listCrontabJavaScript = function () {
@@ -556,7 +564,7 @@ exports.mikanSearch = async function (name) {
 };
 
 exports.syncCookieCloud = async (cc) => {
-  const { uuid, passwd, host, sites, douban } = cc;
+  const { uuid, passwd, host, sites } = cc;
   const { body } = await exports.requestPromise(`${host}/get/${uuid}`);
   const { encrypted } = JSON.parse(body);
   const key = CryptoJS.MD5(uuid + '-' + passwd).toString().substring(0, 16);
@@ -568,7 +576,6 @@ exports.syncCookieCloud = async (cc) => {
   }));
 
   const _sites = exports.listSite();
-  const _doubans = exports.listDouban();
   for (const s of sites) {
     // 判断站点是否启用
     const __site = _sites.filter(item => item.name === s)[0];
@@ -588,22 +595,6 @@ exports.syncCookieCloud = async (cc) => {
     fs.writeFileSync(path.join(__dirname, '../data/site', __site.name + '.json'), JSON.stringify(__site, null, 2));
     global.runningSite[s].cookie = __site.cookie;
     logger.info('站点', __site.name, '同步 Cookie');
-  }
-
-  // douban
-  if (douban) {
-    for (const d of Object.values(global.runningDouban)) {
-      const _douban = _doubans.filter(item => item.id === d.id)[0];
-      const cookie = cookies.filter(item => item.domain.endsWith('douban.com')).map(item => item.cookie).join(';');
-      if (_douban.cookie === cookie) {
-        logger.info('豆瓣 Cookie 未改变');
-        continue;
-      }
-      _douban.cookie = cookie;
-      global.runningDouban[_douban.id].cookie = cookie;
-      fs.writeFileSync(path.join(__dirname, '../data/douban/', d.id + '.json'), JSON.stringify(_douban, null, 2));
-      logger.info('豆瓣同步 Cookie');
-    }
   }
 };
 

@@ -34,65 +34,15 @@ const getAddWishRawObject = function () {
     attachments: [
       {
         color: util.randomColor(),
-        fallback: '添加想看',
+        fallback: '功能已禁用',
         blocks: [
           {
-            type: 'header',
+            type: 'section',
             text: {
               type: 'plain_text',
-              text: '添加想看',
+              text: '订阅功能已禁用',
               emoji: true
             }
-          },
-          {
-            type: 'input',
-            block_id: 'douban_account|' + util.uuid.v4(),
-            element: {
-              type: 'static_select',
-              options: Object.keys(global.runningDouban).map(item => {
-                return {
-                  text: {
-                    type: 'plain_text',
-                    text: global.runningDouban[item].alias,
-                    emoji: true
-                  },
-                  value: global.runningDouban[item].id
-                };
-              }),
-              action_id: 'douban_account'
-            },
-            label: {
-              type: 'plain_text',
-              text: '选择订阅任务',
-              emoji: true
-            }
-          }, {
-            type: 'input',
-            block_id: 'media_name|' + util.uuid.v4(),
-            label: {
-              type: 'plain_text',
-              text: '影视剧名',
-              emoji: true
-            },
-            element: {
-              type: 'plain_text_input',
-              action_id: 'media_name'
-            }
-          },
-          {
-            type: 'actions',
-            elements: [
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '提交',
-                  emoji: true
-                },
-                value: 'add_wish',
-                action_id: 'add_wish'
-              }
-            ]
           }
         ]
       }
@@ -105,55 +55,15 @@ const getRefreshWishRawObject = function () {
     attachments: [
       {
         color: util.randomColor(),
-        fallback: '刷新想看',
+        fallback: '功能已禁用',
         blocks: [
           {
-            type: 'header',
+            type: 'section',
             text: {
               type: 'plain_text',
-              text: '刷新想看',
+              text: '订阅功能已禁用',
               emoji: true
             }
-          },
-          {
-            type: 'input',
-            block_id: 'wish_id|' + util.uuid.v4(),
-            element: {
-              type: 'static_select',
-              options: Object.keys(global.runningDouban).map(item => {
-                return global.runningDouban[item].wishes
-                  .filter(subitem => !subitem.downloaded)
-                  .map(subitem => ({
-                    text: {
-                      type: 'plain_text',
-                      text: global.runningDouban[item].alias + '-' + subitem.name,
-                      emoji: true
-                    },
-                    value: global.runningDouban[item].id + '|' + subitem.id
-                  }));
-              }).flat(),
-              action_id: 'wish_id'
-            },
-            label: {
-              type: 'plain_text',
-              text: '选择订阅项目',
-              emoji: true
-            }
-          },
-          {
-            type: 'actions',
-            elements: [
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '提交',
-                  emoji: true
-                },
-                value: 'refresh_wish',
-                action_id: 'refresh_wish'
-              }
-            ]
           }
         ]
       }
@@ -166,51 +76,15 @@ const getRefreshSubscribeRawObject = function () {
     attachments: [
       {
         color: util.randomColor(),
-        fallback: '刷新订阅任务',
+        fallback: '功能已禁用',
         blocks: [
           {
-            type: 'header',
+            type: 'section',
             text: {
               type: 'plain_text',
-              text: '刷新订阅任务',
+              text: '订阅功能已禁用',
               emoji: true
             }
-          },
-          {
-            type: 'input',
-            block_id: 'subscribe_id|' + util.uuid.v4(),
-            element: {
-              type: 'static_select',
-              options: Object.keys(global.runningDouban).map(item => ({
-                text: {
-                  type: 'plain_text',
-                  text: global.runningDouban[item].alias,
-                  emoji: true
-                },
-                value: global.runningDouban[item].id
-              })),
-              action_id: 'subscribe_id'
-            },
-            label: {
-              type: 'plain_text',
-              text: '选择订阅任务',
-              emoji: true
-            }
-          },
-          {
-            type: 'actions',
-            elements: [
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '提交',
-                  emoji: true
-                },
-                value: 'refresh_subscribe',
-                action_id: 'refresh_subscribe'
-              }
-            ]
           }
         ]
       }
@@ -248,121 +122,19 @@ const getSiteInfoRawObject = async function () {
 };
 
 const getSelectMediaRaw = function (result, douban) {
-  const sName = global.runningDouban[douban].alias;
-  const list = [];
-  for (const r of result) {
-    list.push({
-      type: 'image',
-      image_url: r.poster,
-      alt_text: r.title
-    });
-    list.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*${r.title}*\n${r.year}`
-      }
-    });
-    list.push({
-      type: 'divider'
-    });
-  }
   return {
     attachments: [
       {
         color: util.randomColor(),
-        fallback: '添加想看-' + sName,
+        fallback: '功能已禁用',
         blocks: [
-          {
-            type: 'header',
-            text: {
-              type: 'plain_text',
-              text: '添加想看' + sName,
-              emoji: true
-            }
-          },
           {
             type: 'section',
             text: {
               type: 'plain_text',
-              text: `订阅任务: ${sName}, 共搜到以下 ${result.length} 个内容`,
+              text: '订阅功能已禁用',
               emoji: true
             }
-          },
-          {
-            type: 'divider'
-          },
-          ...list,
-          {
-            type: 'input',
-            block_id: 'wish_select|' + douban + '|' + util.uuid.v4(),
-            element: {
-              type: 'static_select',
-              placeholder: {
-                type: 'plain_text',
-                text: '选择想看项目',
-                emoji: true
-              },
-              options: result.map(item => {
-                return {
-                  text: {
-                    type: 'plain_text',
-                    text: item.title,
-                    emoji: true
-                  },
-                  value: item.id
-                };
-              }),
-              action_id: 'wish_select'
-            },
-            label: {
-              type: 'plain_text',
-              text: '选择想看项目',
-              emoji: true
-            }
-          },
-          {
-            type: 'input',
-            block_id: 'tag_select|' + util.uuid.v4(),
-            element: {
-              type: 'static_select',
-              placeholder: {
-                type: 'plain_text',
-                text: '选择标签',
-                emoji: true
-              },
-              options: Object.keys(global.runningDouban[douban].categories).map(item => {
-                return {
-                  text: {
-                    type: 'plain_text',
-                    text: item,
-                    emoji: true
-                  },
-                  value: item
-                };
-              }),
-              action_id: 'tag_select'
-            },
-            label: {
-              type: 'plain_text',
-              text: '选择标签',
-              emoji: true
-            }
-          },
-          {
-            type: 'actions',
-            elements: [
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '提交',
-                  emoji: true
-                },
-                value: 'select_wish',
-                action_id: 'select_wish'
-              }
-            ]
           }
         ]
       }
@@ -393,94 +165,13 @@ const getNoneResultRaw = function () {
 
 class WebhookMod {
   async handleSlackShortCuts (id, event) {
-    switch (id) {
-    case 'add_wish':
-      const addWishObj = getAddWishRawObject();
-      addWishObj.trigger_id = event.trigger_id;
-      global.doubanPush.pushSlackRaw(addWishObj);
-      break;
-    case 'refresh_wish':
-      const refreshWishObj = getRefreshWishRawObject();
-      refreshWishObj.trigger_id = event.trigger_id;
-      global.doubanPush.pushSlackRaw(refreshWishObj);
-      break;
-    case 'site_info':
-      const siteInfoObj = await getSiteInfoRawObject();
-      siteInfoObj.trigger_id = event.trigger_id;
-      global.doubanPush.pushSlackRaw(siteInfoObj);
-      break;
-    case 'refresh_subscribe':
-      const refreshSubscribe = await getRefreshSubscribeRawObject();
-      refreshSubscribe.trigger_id = event.trigger_id;
-      global.doubanPush.pushSlackRaw(refreshSubscribe);
-      break;
-    }
+    // Douban features disabled
+    return '';
   }
 
   async handelSlackBlockActions (event) {
-    if (event.actions[0].action_id === 'add_wish') {
-      for (const key of Object.keys(event.state.values)) {
-        event.state.values[key.split('|')[0]] = event.state.values[key];
-      }
-      const douban = event.state.values.douban_account.douban_account.selected_option.value;
-      const text = event.state.values.media_name.media_name.value;
-      const result = await global.runningDouban[douban].search(text);
-      if (result.length === 0) {
-        const obj = getNoneResultRaw();
-        obj.trigger_id = event.trigger_id;
-        global.doubanPush.pushSlackRaw(obj);
-        return;
-      }
-      const obj = getSelectMediaRaw(result, douban);
-      obj.trigger_id = event.trigger_id;
-      global.doubanPush.pushSlackRaw(obj);
-    }
-    if (event.actions[0].action_id === 'select_wish') {
-      let douban = '';
-      for (const key of Object.keys(event.state.values)) {
-        event.state.values[key.split('|')[0]] = event.state.values[key];
-        if (key.split('|')[0] === 'wish_select') {
-          douban = key.split('|')[1];
-        }
-      }
-      const id = event.state.values.wish_select.wish_select.selected_option.value;
-      const tag = event.state.values.tag_select.tag_select.selected_option.value;
-      (async () => {
-        try {
-          await global.runningDouban[douban].addWish(id, tag);
-        } catch (e) {
-          logger.error(e);
-          await global.doubanPush.selectWish('添加失败: ' + e.message);
-          return '';
-        }
-        await global.doubanPush.selectWish('添加成功');
-        await global.runningDouban[douban].refreshWishList(true);
-      })();
-      return '';
-    }
-    if (event.actions[0].action_id === 'refresh_wish') {
-      for (const key of Object.keys(event.state.values)) {
-        event.state.values[key.split('|')[0]] = event.state.values[key];
-      }
-      const id = event.state.values.wish_id.wish_id.selected_option.value;
-      const wishId = id.split('|')[1];
-      const douban = global.runningDouban[id.split('|')[0]];
-      if (douban && douban.enableWechatLink) {
-        douban.wechatLink('refreshWish', { key: wishId });
-      }
-      return '';
-    }
-    if (event.actions[0].action_id === 'refresh_subscribe') {
-      for (const key of Object.keys(event.state.values)) {
-        event.state.values[key.split('|')[0]] = event.state.values[key];
-      }
-      const subscribeId = event.state.values.subscribe_id.subscribe_id.selected_option.value;
-      const subscribe = global.runningDouban[subscribeId];
-      if (subscribe && subscribe.enableWechatLink) {
-        subscribe.wechatLink('refresh');
-      }
-      return '';
-    }
+    // Douban features disabled
+    return '';
   }
 
   async plex (req) {
@@ -590,217 +281,7 @@ class WebhookMod {
     if (query.echostr) return content;
     content = await parseXml(content);
     logger.debug(content);
-    if (content.xml.EventKey) {
-      switch (content.xml.EventKey[0]) {
-      case 'refreshDouban':
-        for (const _douban of Object.keys(global.runningDouban)) {
-          const douban = global.runningDouban[_douban];
-          if (douban && douban.enableWechatLink) {
-            douban.wechatLink('refresh');
-          }
-        }
-        return content;
-      case 'select':
-        let note = '';
-        const doubans = Object.keys(global.runningDouban);
-        if (doubans.length === 1) {
-          await redis.setWithExpire('vertex:select:douban', doubans[0], 300);
-          const _note = '豆瓣账户: ' + global.runningDouban[doubans[0]].alias + '\n' +
-            '请输入希望搜索的影视剧名称, 5 分钟内输入有效';
-          await global.doubanPush.selectWish(_note);
-          return;
-        }
-        const keys = [];
-        for (const [index, _douban] of doubans.entries()) {
-          note += doubans.indexOf(_douban) + ': ' + global.runningDouban[_douban].alias + '\n';
-          keys.push({ id: index, text: `${index}: ${global.runningDouban[_douban].alias}` });
-        }
-        note += '5 分钟内输入有效';
-        const selectors = [
-          {
-            question_key: 'accountIndex',
-            title: '选择账号',
-            option_list: keys
-          }
-        ];
-        await global.doubanPush.pushWeChat('Vertex', '企业微信请进行选择\n普通微信请回复序号:\n' + note);
-        await global.doubanPush.pushWeChatSelector('选择账号', '', selectors, 'selectAccount');
-        await redis.setWithExpire('vertex:select:doubans', JSON.stringify(doubans), 300);
-        return;
-      case 'selectAccount': {
-        const text = content.xml.SelectedItems[0].SelectedItem[0].OptionIds[0].OptionId[0];
-        const doubanCache = await redis.get('vertex:select:doubans');
-        const doubans = JSON.parse(doubanCache);
-        const douban = doubans[text];
-        await redis.del('vertex:select:doubans');
-        if (+text + '' !== text || !douban) {
-          await global.doubanPush.selectWish('输入非法, 本次任务已取消');
-          return '';
-        }
-        await redis.setWithExpire('vertex:select:douban', douban, 300);
-        const _note = '已选择豆瓣账户: ' + global.runningDouban[douban].alias + '\n' +
-          '请输入希望搜索的影视剧名称, 5 分钟内输入有效';
-        await global.doubanPush.selectWish(_note);
-        return '';
-      }
-      case 'selectMedia': {
-        const moviesCache = await redis.get('vertex:select:movies');
-        const movies = JSON.parse(moviesCache);
-        if (!movies) {
-          await global.doubanPush.selectWish('任务已超时, 退出');
-          return '';
-        }
-        const num = content.xml.SelectedItems[0].SelectedItem[0].OptionIds[0].OptionId[0];
-        const movie = movies[num];
-        await redis.del('vertex:select:movies');
-        if (+num + '' !== num || !movie) {
-          await global.doubanPush.selectWish('输入非法, 本次任务已取消');
-          return '';
-        }
-        try {
-          await global.runningDouban[movie.doubanId].addWish(movie.id, content.xml.SelectedItems[0].SelectedItem[1].OptionIds[0].OptionId[0]);
-        } catch (e) {
-          logger.error(e);
-          await global.doubanPush.selectWish('添加失败: ' + e.message);
-          return '';
-        }
-        await global.doubanPush.selectWish('添加成功: ' + movie.title);
-        global.runningDouban[movie.doubanId].refreshWishList(true);
-        return '';
-      }
-      case 'selectRefreshMedia': {
-        const doubans = Object.keys(global.runningDouban);
-        const list = doubans.map(item => global.runningDouban[item].wishes.filter(item => !item.downloaded)).flat().map(item => { return { id: item.name, text: item.name }; });
-        const selectors = [
-          {
-            question_key: 'mediaName',
-            title: '选择剧集',
-            option_list: list.slice(0, 10)
-          }
-        ];
-        await global.doubanPush.pushWeChat('Vertex', '本操作只支持企业微信, 仅显示前十个, 普通微信请发送 刷新{剧集名}');
-        await global.doubanPush.pushWeChatSelector('选择剧集', '', selectors, 'refreshMedia');
-        return;
-      }
-      case 'refreshMedia': {
-        for (const _douban of Object.keys(global.runningDouban)) {
-          const douban = global.runningDouban[_douban];
-          if (douban && douban.enableWechatLink) {
-            douban.wechatLink('refreshWish', { key: content.xml.SelectedItems[0].SelectedItem[0].OptionIds[0].OptionId[0] });
-          }
-        }
-        return;
-      }
-      }
-    }
-    const text = content.xml.Content[0].trim();
-    const moviesCache = await redis.get('vertex:select:movies');
-    if (moviesCache) {
-      const movies = JSON.parse(moviesCache);
-      const num = text.split('/')[0];
-      const movie = movies[num];
-      await redis.del('vertex:select:movies');
-      if (+num + '' !== num || !movie) {
-        await global.doubanPush.selectWish('输入非法, 本次任务已取消');
-        return '';
-      }
-      try {
-        await global.runningDouban[movie.doubanId].addWish(movie.id, text.split('/')[1] || '', text.split('/')[2] || '');
-      } catch (e) {
-        logger.error(e);
-        await global.doubanPush.selectWish('添加失败: ' + e.message);
-        return '';
-      }
-      await global.doubanPush.selectWish('添加成功: ' + movie.title);
-      global.runningDouban[movie.doubanId].refreshWishList(true);
-      return '';
-    }
-    const doubanCache = await redis.get('vertex:select:douban');
-    if (doubanCache) {
-      const douban = doubanCache;
-      const result = await global.runningDouban[douban].search(text);
-      if (result.length === 0) {
-        await global.doubanPush.selectWish('无搜索结果');
-        await redis.del('vertex:select:douban');
-        return '';
-      }
-      await redis.del('vertex:select:douban');
-      const keys = [];
-      for (const [index, value] of result.entries()) {
-        await global.doubanPush.pushWeChat(`${index}: ${value.title} - ${value.year}`, value.subtitle || '', value.poster);
-        keys.push({ id: index, text: `${value.title} - ${value.year}` });
-      }
-      const selectors = [
-        {
-          question_key: 'mediaIndex',
-          title: '选择影视剧',
-          option_list: keys
-        },
-        {
-          question_key: 'tagIndex',
-          title: '选择标签',
-          option_list: Object.keys(global.runningDouban[douban].categories).map(item => { return { id: item, text: item }; })
-        }
-      ];
-      await global.doubanPush.pushWeChat('Vertex', '企业微信请进行选择\n普通微信请回复\n序号/标签');
-      await global.doubanPush.pushWeChatSelector('选择想看', '选择以下项目添加想看项目', selectors, 'selectMedia');
-      await redis.setWithExpire('vertex:select:movies', JSON.stringify(result), 300);
-      return '';
-    }
-    const doubansCache = await redis.get('vertex:select:doubans');
-    if (doubansCache) {
-      const doubans = JSON.parse(doubansCache);
-      const douban = doubans[text];
-      await redis.del('vertex:select:doubans');
-      if (+text + '' !== text || !douban) {
-        await global.doubanPush.selectWish('输入非法, 本次任务已取消');
-        return '';
-      }
-      await redis.setWithExpire('vertex:select:douban', douban, 300);
-      const note = '已选择豆瓣账户: ' + global.runningDouban[douban].alias + '\n' +
-        '请输入希望搜索的影视剧名称, 5 分钟内输入有效';
-      await global.doubanPush.selectWish(note);
-      return '';
-    }
-    if (text === '刷新豆瓣') {
-      for (const _douban of Object.keys(global.runningDouban)) {
-        const douban = global.runningDouban[_douban];
-        if (douban && douban.enableWechatLink) {
-          douban.wechatLink('refresh');
-        }
-      }
-      return content;
-    }
-    if (text.indexOf('刷新') === 0) {
-      for (const _douban of Object.keys(global.runningDouban)) {
-        const douban = global.runningDouban[_douban];
-        if (douban && douban.enableWechatLink && text.indexOf(douban.alias) !== -1) {
-          douban.wechatLink('refresh');
-          return content;
-        }
-      }
-      const key = text.replace('刷新', '');
-      if (key === '') {
-        await global.doubanPush.selectWish('输入非法, 本次任务已取消');
-        return '';
-      }
-      for (const _douban of Object.keys(global.runningDouban)) {
-        const douban = global.runningDouban[_douban];
-        if (douban && douban.enableWechatLink) {
-          douban.wechatLink('refreshWish', { key });
-        }
-      }
-    }
-    if (text.indexOf('想看') === 0) {
-      let note = '';
-      const doubans = Object.keys(global.runningDouban);
-      for (const _douban of doubans) {
-        note += doubans.indexOf(_douban) + ': ' + global.runningDouban[_douban].alias + '\n';
-      }
-      note += '输入豆瓣账户前的序号, 5 分钟内输入有效';
-      await global.doubanPush.selectWish(note);
-      await redis.setWithExpire('vertex:select:doubans', JSON.stringify(doubans), 300);
-    }
+    // Douban features disabled
     return content;
   }
 

@@ -14,7 +14,6 @@ const Script = require('./common/Script');
 const Client = require('./common/Client');
 const Rss = require('./common/Rss');
 const Server = require('./common/Server');
-const Douban = require('./common/Douban');
 const Site = require('./common/Site');
 const Watch = require('./common/Watch');
 const IRC = require('./common/IRC');
@@ -31,10 +30,6 @@ const initPush = function () {
   const webhookPush = util.listPush().filter(item => item.id === global.webhookPushTo)[0];
   if (webhookPush) {
     global.webhookPush = new Push({ ...webhookPush, push: true });
-  }
-  const doubanPush = util.listPush().filter(item => item.id === global.doubanPush)[0];
-  if (doubanPush) {
-    global.doubanPush = new Push({ ...doubanPush, push: true });
   }
 };
 
@@ -83,7 +78,6 @@ const init = function () {
   global.ignoreError = setting.ignoreError;
   global.ignoreDependCheck = setting.ignoreDependCheck;
   global.webhookPushTo = setting.webhookPushTo;
-  global.doubanPush = setting.doubanPush;
   global.apiKey = setting.apiKey;
   global.tmdbApiKey = setting.tmdbApiKey;
   global.trustVertexPanel = setting.trustVertexPanel;
@@ -111,7 +105,6 @@ const init = function () {
   global.runningServer = {};
   global.runningSite = {};
   global.runningRace = {};
-  global.runningDouban = {};
   global.runningScript = {};
   global.runningWatch = {};
   global.runningIRC = {};
@@ -135,11 +128,6 @@ const init = function () {
   for (const site of util.listSite()) {
     if (site.enable) {
       global.runningSite[site.name] = new Site(site);
-    }
-  }
-  for (const douban of util.listDouban()) {
-    if (douban.enable) {
-      global.runningDouban[douban.id] = new Douban(douban);
     }
   }
   for (const script of util.listCrontabJavaScript()) {

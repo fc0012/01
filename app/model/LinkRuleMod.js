@@ -35,9 +35,8 @@ class LinkRuleMod {
 
   list () {
     const linkRuleList = util.listLinkRule();
-    const doubanList = util.listDouban();
     for (const linkRule of linkRuleList) {
-      linkRule.used = !!doubanList.some(item => item.linkRule === linkRule.id);
+      linkRule.used = false;
     }
     return linkRuleList;
   };
