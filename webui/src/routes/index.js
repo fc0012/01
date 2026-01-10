@@ -23,8 +23,6 @@ import TaskWatchCategory from '@/pages/task/WatchCategory';
 import TaskScript from '@/pages/task/Script';
 import TaskCodeScript from '@/pages/task/CodeScript';
 
-
-
 import ToolMikanHistory from '@/pages/tool/MikanHistory';
 import ToolNetworkTest from '@/pages/tool/NetworkTest';
 import ToolMTeamLogin from '@/pages/tool/MTeamLogin';
@@ -47,13 +45,9 @@ import SettingMenu from '@/pages/setting/Menu';
 import SettingBackup from '@/pages/setting/Backup';
 import SettingCookieCloud from '@/pages/setting/CookieCloud';
 
-
-
 import HistoryRss from '@/pages/history/Rss';
 import HistorySubsribe from '@/pages/history/Subscribe';
 import HistoryWatchCategory from '@/pages/history/WatchCategory';
-
-
 
 import Login from '@/pages/user/Login';
 
@@ -305,10 +299,6 @@ const history = {
   ]
 };
 
-
-
-
-
 const tool = {
   path: 'tool',
   component: Layout,
@@ -371,8 +361,6 @@ const tool = {
     }
   ]
 };
-
-
 
 const routes = [{
   path: '/',
