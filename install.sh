@@ -18,7 +18,6 @@ VERTEX_IMAGE="cczc9962/vertex01:stable"
 INSTALL_DIR=""
 CREATED_RESOURCES=()
 
-# Print functions
 print_banner() {
     echo ""
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
@@ -33,40 +32,138 @@ print_warning() { echo -e "  ${YELLOW}⚠${NC} $1"; }
 print_error() { echo -e "  ${RED}✖${NC} $1"; }
 print_step() { echo -e "\n${BOLD}[$1/$2]${NC} ${CYAN}$3${NC}"; }
 
+detect_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$ID
+        VERSION=$VERSION_ID
+        CODENAME=$VERSION_CODENAME
+    elif [ -f /etc/redhat-release ]; then
+        OS="centos"
+    else
+        OS="unknown"
+    fi
+    echo "$OS"
+}
+
+install_docker_debian() {
+    print_info "Installing Docker on Debian/Ubuntu..."
+    apt-get update -qq
+    apt-get install -y -qq ca-certificates curl gnupg lsb-release >/dev/null 2>&1
+    
+    mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/$OS/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null
+    chmod a+r /etc/apt/keyrings/docker.gpg
+    
+    # 对于未知版本，使用最新稳定版的 codename
+    local codename="${CODENAME:-bookworm}"
+    # Debian 13 (trixie) 回退到 bookworm
+    [ "$codename" = "trixie" ] && codename="bookworm"
+    
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$OS $codename stable" > /etc/apt/sources.list.d/docker.list
+    
+    apt-get update -qq
+    apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin >/dev/null 2>&1
+}
+
+install_docker_rhel() {
+    print_info "Installing Docker on RHEL/CentOS/Fedora..."
+    if command -v dnf &>/dev/null; then
+        dnf install -y -q dnf-plugins-core >/dev/null 2>&1
+        dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo >/dev/null 2>&1
+        dnf install -y -q docker-ce docker-ce-cli containerd.io docker-compose-plugin >/dev/null 2>&1
+    else
+        yum install -y -q yum-utils >/dev/null 2>&1
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo >/dev/null 2>&1
+        yum install -y -q docker-ce docker-ce-cli containerd.io docker-compose-plugin >/dev/null 2>&1
+    fi
+}
+
+install_docker_arch() {
+    print_info "Installing Docker on Arch Linux..."
+    pacman -Sy --noconfirm docker docker-compose >/dev/null 2>&1
+}
+
+install_docker_alpine() {
+    print_info "Installing Docker on Alpine..."
+    apk add --no-cache docker docker-compose >/dev/null 2>&1
+    rc-update add docker boot 2>/dev/null || true
+}
+
+install_docker_generic() {
+    print_info "Trying generic Docker installation..."
+    curl -fsSL https://get.docker.com | bash -s -- 2>/dev/null || {
+        print_error "Generic installation failed"
+        return 1
+    }
+}
+
+install_docker() {
+    local os=$(detect_os)
+    print_info "Detected OS: $os"
+    
+    case "$os" in
+        ubuntu|debian|linuxmint|pop)
+            install_docker_debian
+            ;;
+        centos|rhel|fedora|rocky|almalinux|ol)
+            install_docker_rhel
+            ;;
+        arch|manjaro)
+            install_docker_arch
+            ;;
+        alpine)
+            install_docker_alpine
+            ;;
+        *)
+            install_docker_generic
+            ;;
+    esac
+    
+    systemctl enable docker 2>/dev/null || true
+    systemctl start docker 2>/dev/null || service docker start 2>/dev/null || true
+    print_success "Docker installed"
+}
+
 check_docker() {
     if command -v docker &> /dev/null; then
-        local version=$(docker --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+        local version=$(docker --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
         print_success "Docker ${version}"
         return 0
-    else
-        print_error "Docker not installed"
-        echo -e "      Install: ${YELLOW}curl -fsSL https://get.docker.com | bash${NC}"
-        return 1
     fi
+    return 1
 }
 
 check_docker_compose() {
     if docker compose version &> /dev/null 2>&1; then
-        local version=$(docker compose version | grep -oP '\d+\.\d+\.\d+' | head -1)
+        local version=$(docker compose version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
         print_success "Docker Compose ${version}"
         return 0
     elif command -v docker-compose &> /dev/null; then
-        local version=$(docker-compose --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+        local version=$(docker-compose --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
         print_success "Docker Compose ${version}"
         return 0
-    else
-        print_error "Docker Compose not installed"
-        echo -e "      Install: ${YELLOW}apt-get install docker-compose-plugin${NC}"
-        return 1
     fi
+    return 1
 }
 
 check_dependencies() {
     print_step "1" "4" "Checking dependencies"
-    local has_error=0
-    check_docker || has_error=1
-    check_docker_compose || has_error=1
-    [ $has_error -eq 1 ] && { print_error "Missing dependencies"; return 1; }
+    
+    if ! check_docker; then
+        print_warning "Docker not found, installing..."
+        install_docker
+        if ! check_docker; then
+            print_error "Failed to install Docker"
+            return 1
+        fi
+    fi
+    
+    if ! check_docker_compose; then
+        print_error "Docker Compose not available"
+        return 1
+    fi
+    
     return 0
 }
 
@@ -115,13 +212,14 @@ EOF
 configure_mirror() {
     local daemon_json="/etc/docker/daemon.json"
     [ -f "$daemon_json" ] && return 0
+    mkdir -p /etc/docker
     cat > "$daemon_json" << 'EOF'
 {
   "registry-mirrors": ["https://docker.1ms.run", "https://docker.xuanyuan.me"]
 }
 EOF
     systemctl daemon-reload 2>/dev/null || true
-    systemctl restart docker 2>/dev/null || true
+    systemctl restart docker 2>/dev/null || service docker restart 2>/dev/null || true
     sleep 2
     print_success "Configured Docker mirror"
 }
@@ -132,7 +230,6 @@ start_services() {
     configure_mirror
     cd "$install_dir"
 
-    # Pull image with timer display
     local start_time=$(date +%s)
     echo -ne "  ${BLUE}▶${NC} Pulling image... ${YELLOW}0s${NC}"
 
@@ -143,7 +240,6 @@ start_services() {
     fi
     local pull_pid=$!
 
-    # Show elapsed time while pulling
     while kill -0 $pull_pid 2>/dev/null; do
         local elapsed=$(($(date +%s) - start_time))
         echo -ne "\r  ${BLUE}▶${NC} Pulling image... ${YELLOW}${elapsed}s${NC}  "
@@ -154,7 +250,6 @@ start_services() {
     local total_time=$(($(date +%s) - start_time))
     echo -ne "\r  ${GREEN}✔${NC} Image pulled (${total_time}s)          \n"
 
-    # Start container quietly
     echo -ne "  ${BLUE}▶${NC} Starting container..."
     if docker compose version &> /dev/null 2>&1; then
         docker compose up -d 2>/dev/null
