@@ -1,239 +1,186 @@
-const cron = require('node-cron');
-const logger = require('../libs/logger');
-const Wechat = require('../libs/push/wechat');
-const Slack = require('../libs/push/slack');
-const Telegram = require('../libs/push/telegram');
-const Ntfy = require('../libs/push/ntfy');
-const Webhook = require('../libs/push/webhook');
-
-const PUSH = {
-  wechat: Wechat,
-  slack: Slack,
-  telegram: Telegram,
-  ntfy: Ntfy,
-  webhook: Webhook
-};
+/**
+ * Push 替代类 - 空实现
+ * 
+ * 此类保留了原有 Push 类的接口，但所有方法都是空实现。
+ * 这样可以避免其他模块调用推送功能时报错。
+ * 
+ * Requirements: 2.6
+ */
 
 class Push {
   constructor (push) {
-    this.push = push.push;
-    this.alias = push.alias;
-    this.type = push.type;
-    this.maxErrorCount = push.maxErrorCount;
-    this.clearCountCron = push.clearCountCron;
-    this.pushType = push.pushType || [];
-    const additionPushType = [
-      'pushWeChat', 'pushWeChatSelector', 'modifyWechatMenu', 'edit',
-      'pushPlexStartOrStopToSlack', 'pushEmbyStartOrStopToSlack', 'pushSlackRaw',
-      'openSlackView', 'pushSlack',
-      'pushTelegram', 'pushNtfy', 'pushWebhook'
-    ];
-    this.pushType = this.pushType.concat(additionPushType);
-    if (this.push && !push.dryrun) {
-      this.p = new PUSH[this.type](push);
-      this.clearCountCron = this.clearCountCron || '0 * * * *';
-      this.clearCountJob = cron.schedule(this.clearCountCron, () => this._clearErrorCount());
-      this.maxErrorCount = +this.maxErrorCount || 100;
-      this.errorCount = 0;
-      this.accessToken = {
-        token: '',
-        refreshTime: 0
-      };
-      logger.info('通知工具', this.alias, '初始化成功');
-    }
-  };
+    // 空实现 - 不初始化任何推送服务
+  }
 
   _clearErrorCount () {
-    this.errorCount = 0;
+    // 空实现
   }
 
   async doRequest (type, args) {
-    if (!this.push) {
-      return 0;
-    }
-    if (this.errorCount > this.maxErrorCount && (type.indexOf('Error') !== -1 || type.indexOf('Failed') !== -1)) {
-      logger.debug('周期内错误推送已达上限, 跳过本次推送');
-      return 0;
-    }
-    if (this.pushType.indexOf(type) === -1) {
-      return 0;
-    }
-    try {
-      if (type === 'push') {
-        return await (this.p.pushWeChat || this.p.pushSlack || this.p.pushTelegram || this.p.pushNtfy || this.p.pushWebhook)(...args);
-      }
-      return await this.p[type](...args);
-    } catch (e) {
-      logger.error('发送通知信息失败:\n', e);
-    }
-  };
+    // 空实现 - 直接返回
+    return 0;
+  }
 
   async rssError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('rssError', args);
+    // 空实现
   }
 
   async scrapeError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('scrapeError', args);
+    // 空实现
   }
 
   async addTorrent (...args) {
-    await this.doRequest('addTorrent', args);
-  };
+    // 空实现
+  }
 
   async addTorrentError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('addTorrentError', args);
-  };
+    // 空实现
+  }
 
   async rejectTorrent (...args) {
-    await this.doRequest('rejectTorrent', args);
-  };
+    // 空实现
+  }
 
   async deleteTorrent (...args) {
-    await this.doRequest('deleteTorrent', args);
-  };
+    // 空实现
+  }
 
   async deleteTorrentError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('deleteTorrentError', args);
-  };
+    // 空实现
+  }
 
   async reannounceTorrent (...args) {
-    await this.doRequest('reannounceTorrent', args);
-  };
+    // 空实现
+  }
 
   async reannounceTorrentError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('reannounceTorrentError', args);
-  };
+    // 空实现
+  }
 
   async connectClient (...args) {
-    return await this.doRequest('connectClient', args);
+    // 空实现
+    return 0;
   }
 
   async clientLoginError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('clientLoginError', args);
+    // 空实现
   }
 
   async getMaindataError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('getMaindataError', args);
+    // 空实现
   }
 
   async spaceAlarm (...args) {
-    this.errorCount += 1;
-    await this.doRequest('spaceAlarm', args);
+    // 空实现
   }
 
   async plexWebhook (...args) {
-    await this.doRequest('plexWebhook', args);
-  };
+    // 空实现
+  }
 
   async embyWebhook (...args) {
-    await this.doRequest('embyWebhook', args);
-  };
+    // 空实现
+  }
 
   async jellyfinWebhook (...args) {
-    await this.doRequest('jellyfinWebhook', args);
-  };
+    // 空实现
+  }
 
   async selectWish (...args) {
-    await this.doRequest('selectWish', args);
-  };
+    // 空实现
+  }
 
   async addDoubanTorrent (...args) {
-    await this.doRequest('addDoubanTorrent', args);
-  };
+    // 空实现
+  }
 
   async addDoubanTorrentError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('addDoubanTorrentError', args);
-  };
+    // 空实现
+  }
 
   async torrentFinish (...args) {
-    await this.doRequest('torrentFinish', args);
-  };
+    // 空实现
+  }
 
   async selectTorrentError (...args) {
-    await this.doRequest('selectTorrentError', args);
-  };
+    // 空实现
+  }
 
   async addDouban (...args) {
-    await this.doRequest('addDouban', args);
-  };
+    // 空实现
+  }
 
   async startRefreshWish (...args) {
-    await this.doRequest('startRefreshWish', args);
-  };
+    // 空实现
+  }
 
   async startRefreshWishError (...args) {
-    this.errorCount += 1;
-    await this.doRequest('startRefreshWishError', args);
-  };
+    // 空实现
+  }
 
   async addDoubanWish (...args) {
-    await this.doRequest('addDoubanWish', args);
-  };
+    // 空实现
+  }
 
   async scrapeTorrent (...args) {
-    await this.doRequest('scrapeTorrent', args);
+    // 空实现
   }
 
   async scrapeTorrentFailed (...args) {
-    this.errorCount += 1;
-    await this.doRequest('scrapeTorrentFailed', args);
+    // 空实现
   }
 
   async pushTelegram (...args) {
-    await this.doRequest('pushTelegram', args);
+    // 空实现
   }
 
   async pushNtfy (...args) {
-    await this.doRequest('pushNtfy', args);
+    // 空实现
   }
 
   async pushWeChat (...args) {
-    await this.doRequest('pushWeChat', args);
-  };
+    // 空实现
+  }
 
   async pushWeChatSelector (...args) {
-    await this.doRequest('pushWeChatSelector', args);
-  };
+    // 空实现
+  }
 
   async modifyWechatMenu () {
-    await this.doRequest('modifyWechatMenu', []);
-  };
+    // 空实现
+  }
 
   async edit (...args) {
-    await this.doRequest('edit', args);
+    // 空实现
   }
 
   async pushPlexStartOrStopToSlack (...args) {
-    await this.doRequest('pushPlexStartOrStopToSlack', args);
+    // 空实现
   }
 
   async pushEmbyStartOrStopToSlack (...args) {
-    await this.doRequest('pushEmbyStartOrStopToSlack', args);
+    // 空实现
   }
 
   async pushSlack (...args) {
-    await this.doRequest('pushSlack', args);
+    // 空实现
   }
 
   async pushSlackRaw (...args) {
-    await this.doRequest('pushSlackRaw', args);
+    // 空实现
   }
 
   async openSlackView (...args) {
-    await this.doRequest('openSlackView', args);
+    // 空实现
   }
 
   async push (...args) {
-    await this.doRequest('push', args);
+    // 空实现
   }
-};
+
+  async pushWebhook (...args) {
+    // 空实现
+  }
+}
 
 module.exports = Push;

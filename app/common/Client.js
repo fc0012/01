@@ -1,7 +1,5 @@
 const qb = require('../libs/client/qb');
 const util = require('../libs/util');
-const de = require('../libs/client/de');
-const tr = require('../libs/client/tr');
 const redis = require('../libs/redis');
 const moment = require('moment');
 const logger = require('../libs/logger');
@@ -9,9 +7,7 @@ const cron = require('node-cron');
 const Push = require('./Push');
 
 const clients = {
-  qBittorrent: qb,
-  deluge: de,
-  Transmission: tr
+  qBittorrent: qb
 };
 
 class Client {
@@ -560,13 +556,6 @@ class Client {
   async getFiles (hash) {
     if (this._client.type === 'qBittorrent') {
       return await this.client.getFiles(this.clientUrl, this.cookie, hash);
-    }
-    if (this._client.type === 'Transmission') {
-      for (const t of this.maindata.torrents) {
-        if (t.hash === hash) {
-          return await this.client.getFiles(this.clientUrl, this.cookie, t.id);
-        }
-      }
     }
   }
 

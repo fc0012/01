@@ -155,11 +155,6 @@ module.exports = function (app, express, router) {
   router.get('/server/reload', ctrl.Server.reload);
   router.ws('/server/shell/:serverId', ctrl.Server.shell);
 
-  router.post('/notification/add', ctrl.Push.add);
-  router.get('/notification/list', ctrl.Push.list);
-  router.post('/notification/modify', ctrl.Push.modify);
-  router.post('/notification/delete', ctrl.Push.delete);
-
   router.post('/site/add', ctrl.Site.add);
   router.get('/site/list', ctrl.Site.list);
   router.get('/site/listRecord', ctrl.Site.listRecord);
@@ -186,13 +181,6 @@ module.exports = function (app, express, router) {
   router.post('/script/modify', ctrl.Script.modify);
   router.post('/script/delete', ctrl.Script.delete);
   router.post('/script/run', ctrl.Script.run);
-
-  router.get('/watch/list', ctrl.Watch.list);
-  router.get('/watch/listHistory', ctrl.Watch.listHistory);
-  router.post('/watch/add', ctrl.Watch.add);
-  router.post('/watch/modify', ctrl.Watch.modify);
-  router.post('/watch/delete', ctrl.Watch.delete);
-  router.post('/watch/deleteRecord', ctrl.Watch.deleteRecord);
 
   router.get('/rss/list', ctrl.Rss.list);
   router.post('/rss/add', ctrl.Rss.add);

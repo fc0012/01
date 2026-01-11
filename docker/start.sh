@@ -39,10 +39,6 @@ if [ ! -d '/vertex/data/site' ]; then
   mkdir /vertex/data/site
 fi
 
-if [ ! -d '/vertex/data/irc' ]; then
-  mkdir /vertex/data/irc
-fi
-
 if [ ! -d '/vertex/data/race' ]; then
   mkdir /vertex/data/race
 fi

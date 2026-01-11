@@ -8,9 +8,6 @@
  * parse and schedule the script to run at the times specified by the expression.
  */
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 const fc = require('fast-check');
 const cron = require('node-cron');
 
@@ -41,25 +38,6 @@ afterEach(() => {
     }
   });
 });
-
-// Helper to create a temporary test script for external scripts
-function createTestScript(content, filename) {
-  const testDir = path.join(os.tmpdir(), `vertex-cron-test-${Date.now()}-${Math.random().toString(36).substring(7)}`);
-  fs.mkdirSync(testDir, { recursive: true });
-  const scriptPath = path.join(testDir, filename);
-  fs.writeFileSync(scriptPath, content);
-  fs.chmodSync(scriptPath, '755');
-  return { testDir, scriptPath };
-}
-
-// Helper to clean up test directory
-function cleanupTestDir(testDir) {
-  try {
-    fs.rmSync(testDir, { recursive: true, force: true });
-  } catch (e) {
-    // Ignore cleanup errors
-  }
-}
 
 /**
  * Generate valid cron expressions
@@ -152,66 +130,6 @@ describe('Script Cron Schedule Parsing', () => {
             return cronMatches && jobScheduled;
           } finally {
             script.destroy();
-          }
-        }
-      ),
-      { numRuns: 100 }
-    );
-  });
-
-  /**
-   * **Feature: vertex-install-script, Property 9: Cron Schedule Parsing**
-   * **Validates: Requirements 8.1**
-   * 
-   * Property: For any valid cron expression with external scripts,
-   * the Script class SHALL correctly delegate to ExternalScript.
-   */
-  test('Property 9: valid cron expressions are accepted for external scripts', async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        validCronExpressionArb(),
-        safeStringArb(),
-        async (cronExpr, alias) => {
-          // Verify the cron expression is valid
-          const isValid = cron.validate(cronExpr);
-          if (!isValid) {
-            return true;
-          }
-          
-          // Create a test script file
-          const scriptContent = '#!/bin/bash\necho "test"';
-          const { testDir, scriptPath } = createTestScript(scriptContent, 'test.sh');
-          
-          try {
-            const scriptId = `test-ext-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-            
-            const script = new Script({
-              id: scriptId,
-              alias: alias,
-              cron: cronExpr,
-              enable: true,
-              type: 'external',
-              scriptPath: scriptPath,
-              interpreter: 'bash',
-              timeout: 10
-            });
-            
-            try {
-              // Verify the script was created with the correct cron expression
-              const cronMatches = script.cron === cronExpr;
-              
-              // Verify it's recognized as external type
-              const isExternal = script.type === 'external';
-              
-              // Verify ExternalScript instance was created
-              const hasExternalScript = script.externalScript !== null;
-              
-              return cronMatches && isExternal && hasExternalScript;
-            } finally {
-              script.destroy();
-            }
-          } finally {
-            cleanupTestDir(testDir);
           }
         }
       ),
