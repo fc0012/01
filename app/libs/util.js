@@ -8,7 +8,6 @@ const CryptoJS = require('crypto-js');
 const cron = require('node-cron');
 const request = require('request');
 const Database = require('better-sqlite3');
-const url = require('url');
 const { JSDOM } = require('jsdom');
 const moment = require('moment');
 const redlock = require('./redlock');

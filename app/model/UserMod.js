@@ -50,10 +50,6 @@ class UserMod {
           title: 'RSS 规则',
           path: '/rule/rss',
           icon: ['fas', 'square-rss']
-        }, {
-          title: '选种规则',
-          path: '/rule/select',
-          icon: ['fas', 'square-check']
         }]
       }, {
         title: '任务配置',
