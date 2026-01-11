@@ -9,13 +9,13 @@
 在 Linux 服务器上执行以下命令即可快速安装 VERTEX：
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/fc0012/vertex01/stable/install.sh | bash
+bash <(curl -sSL https://raw.githubusercontent.com/fc0012/vertex01/stable/install.sh)
 ```
 
 或者使用 wget：
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/fc0012/vertex01/stable/install.sh | bash
+bash <(wget -qO- https://raw.githubusercontent.com/fc0012/vertex01/stable/install.sh)
 ```
 
 安装完成后，访问 `http://你的服务器IP:3000` 即可使用。

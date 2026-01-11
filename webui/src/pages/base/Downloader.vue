@@ -90,12 +90,10 @@
         <a-form-item
           label="下载器类型"
           name="type"
-          extra="下载器类型, 目前完整支持 qBittorrent, Deluge 和 Transmission 不完全支持"
+          extra="下载器类型, 仅支持 qBittorrent"
           :rules="[{ required: true, message: '${label}不可为空! ' }]">
           <a-select size="small" v-model:value="downloader.type"  >
             <a-select-option value="qBittorrent">qBittorrent</a-select-option>
-            <a-select-option value="Transmission">Transmission</a-select-option>
-            <a-select-option value="deluge">Deluge</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item
@@ -116,44 +114,6 @@
           extra="下载器的链接, 最后的 / 需要删除"
           :rules="[{ required: true, message: '${label}不可为空! ' }]">
           <a-input size="small" v-model:value="downloader.clientUrl"/>
-        </a-form-item>
-        <a-form-item
-          label="推送通知"
-          name="pushNotify"
-          :rules="[{ required: true, message: '${label}不可为空! ' }]">
-          <a-checkbox v-model:checked="downloader.pushNotify">启用</a-checkbox>
-        </a-form-item>
-        <a-form-item
-          v-if="downloader.pushNotify"
-          label="通知方式"
-          name="notify"
-          extra="通知方式, 用于推送删种等信息, 在通知工具页面创建"
-          :rules="[{ required: true, message: '${label}不可为空! ' }]">
-          <a-select size="small" v-model:value="downloader.notify">
-            <a-select-option v-for="notification of notifications" v-model:value="notification.id" :key="notification.id">{{ notification.alias }}</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
-          label="监控频道"
-          name="pushMonitor"
-          :rules="[{ required: true, message: '${label}不可为空! ' }]">
-          <a-checkbox v-model:checked="downloader.pushMonitor">启用</a-checkbox>
-        </a-form-item>
-        <a-form-item
-          v-if="downloader.pushMonitor"
-          label="监控频道"
-          name="monitor"
-          extra="下载器状态频道, 仅支持 Telegram! 在推送工具页面创建"
-          :rules="[{ required: true, message: '${label}不可为空! ' }]">
-          <a-select size="small" v-model:value="downloader.monitor">
-            <a-select-option
-              :disabled="notification.type !== 'telegram'"
-              v-for="notification of notifications"
-              v-model:value="notification.id"
-              :key="notification.id">
-              {{ notification.alias }}
-            </a-select-option>
-          </a-select>
         </a-form-item>
         <a-form-item
           label="信息更新周期"

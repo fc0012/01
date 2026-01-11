@@ -54,10 +54,6 @@ class UserMod {
           title: '选种规则',
           path: '/rule/select',
           icon: ['fas', 'square-check']
-        }, {
-          title: '链接规则',
-          path: '/rule/link',
-          icon: ['fas', 'link']
         }]
       }, {
         title: '任务配置',
@@ -67,30 +63,6 @@ class UserMod {
           title: 'RSS 任务',
           path: '/task/rss',
           icon: ['fas', 'rss']
-        }, {
-          title: '订阅任务',
-          path: '/task/subscribe',
-          icon: ['fas', 'calendar-check']
-        }, {
-          title: '监控分类',
-          path: '/task/watchCategory',
-          icon: ['fas', 'video']
-        }, {
-          title: '定时脚本',
-          path: '/task/script',
-          icon: ['fas', 'clock']
-        }, {
-          title: 'Python/Shell',
-          path: '/task/codeScript',
-          icon: ['fas', 'terminal']
-        }, {
-          title: '链接文件',
-          path: '/task/link',
-          icon: ['fas', 'link']
-        }, {
-          title: '批量链接',
-          path: '/task/bulkLink',
-          icon: ['fas', 'link']
         }]
       }, {
         title: '任务历史',
@@ -100,43 +72,15 @@ class UserMod {
           title: 'RSS 历史',
           path: '/history/rss',
           icon: ['fas', 'rss']
-        }, {
-          title: '订阅历史',
-          path: '/history/subscribe',
-          icon: ['fas', 'calendar-check']
-        }, {
-          title: '监控分类历史',
-          path: '/history/watchCategory',
-          icon: ['fas', 'video']
         }]
       }, {
         title: '常用工具',
         path: '/tool',
         icon: ['fas', 'toolbox'],
         sub: [{
-          title: '蜜柑番剧历史',
-          path: '/tool/mikanHistory',
-          icon: ['fas', 'clock-rotate-left']
-        }, {
-          title: '网络测试',
-          path: '/tool/networkTest',
-          icon: ['fas', 'square-check']
-        }, {
-          title: '修改 HOSTS',
-          path: '/tool/hosts',
-          icon: ['fas', 'route']
-        }, {
-          title: 'HTTP 代理',
-          path: '/tool/proxy',
-          icon: ['fas', 'globe']
-        }, {
           title: '清除历史记录',
           path: '/tool/clearHistory',
           icon: ['fas', 'trash']
-        }, {
-          title: '路径生成器',
-          path: '/tool/pathGenerator',
-          icon: ['fas', 'terminal']
         }, {
           title: '下载器日志',
           path: '/tool/clientLog',

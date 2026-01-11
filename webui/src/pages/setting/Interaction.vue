@@ -1,8 +1,8 @@
 <template>
   <div style="font-size: 24px; font-weight: bold;">交互设置</div>
   <a-divider></a-divider>
-  <div class="interaction-setting" >
-    <div style="text-align: left; ">
+  <div class="interaction-setting">
+    <div style="text-align: left;">
       <a-form
         labelAlign="right"
         :labelWrap="true"
@@ -26,22 +26,6 @@
           <a-input size="small" v-model:value="setting.wechatAesKey"/>
         </a-form-item>
         <a-form-item
-          label="交互方式"
-          name="doubanPush"
-          extra="微信内交互时使用的通知方式">
-          <a-select size="small" v-model:value="setting.doubanPush"  >
-            <a-select-option v-for="notification of notifications" :key="notification.id" v-model:value="notification.id">{{ notification.alias }}</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
-          label="媒体服务通知"
-          name="webhookPushTo"
-          extra="Plex 等信息的通知方式">
-          <a-select size="small" v-model:value="setting.webhookPushTo"  >
-            <a-select-option v-for="notification of notifications" :key="notification.id" v-model:value="notification.id">{{ notification.alias }}</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
           :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
           <a-button type="primary" html-type="submit" style="margin-top: 24px; margin-bottom: 48px;">保存</a-button>
         </a-form-item>
@@ -53,8 +37,7 @@
 export default {
   data () {
     return {
-      setting: {},
-      notifications: []
+      setting: {}
     };
   },
   methods: {
@@ -70,9 +53,7 @@ export default {
         const s = (await this.$api().setting.get()).data;
         this.setting = {
           wechatAesKey: s.wechatAesKey,
-          wechatToken: s.wechatToken,
-          doubanPush: s.doubanPush,
-          webhookPushTo: s.webhookPushTo
+          wechatToken: s.wechatToken
         };
       } catch (e) {
         await this.$message().error(e.message);
@@ -86,19 +67,10 @@ export default {
       } catch (e) {
         await this.$message().error(e.message);
       }
-    },
-    async listNotification () {
-      try {
-        const res = await this.$api().notification.list();
-        this.notifications = res.data;
-      } catch (e) {
-        this.$message().error(e.message);
-      }
     }
   },
   async mounted () {
     await this.get();
-    this.listNotification();
   }
 };
 </script>
