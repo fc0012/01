@@ -175,22 +175,6 @@
           <a-input size="small" v-model:value="rss.cron"/>
         </a-form-item>
         <a-form-item
-          label="推送通知"
-          name="pushNotify"
-          :rules="[{ required: true, message: '${label}不可为空! ' }]">
-          <a-checkbox v-model:checked="rss.pushNotify">启用</a-checkbox>
-        </a-form-item>
-        <a-form-item
-          v-if="rss.pushNotify"
-          label="通知方式"
-          name="notify"
-          extra="通知方式, 用于推送删种等信息, 在通知工具页面创建"
-          :rules="[{ required: true, message: '${label}不可为空! ' }]">
-          <a-select size="small" v-model:value="rss.notify">
-            <a-select-option v-for="notification of notifications" v-model:value="notification.id" :key="notification.id">{{ notification.alias }}</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
           label="限制上传速度"
           name="uploadLimit"
           extra="限制种子的上传速度, 0 为不限速"
@@ -403,10 +387,6 @@ export default {
         dataIndex: 'clientArr',
         width: 40
       }, {
-        title: '推送消息',
-        dataIndex: 'pushNotify',
-        width: 20
-      }, {
         title: '操作',
         width: 28
       }
@@ -432,7 +412,6 @@ export default {
       modalVisible: false,
       rssList: [],
       downloaders: [],
-      notifications: [],
       rssRules: [],
       rss: {},
       defaultRss: {
@@ -469,14 +448,6 @@ export default {
       try {
         const res = await this.$api().rss.list();
         this.rssList = res.data;
-      } catch (e) {
-        this.$message().error(e.message);
-      }
-    },
-    async listNotification () {
-      try {
-        const res = await this.$api().notification.list();
-        this.notifications = res.data.sort((a, b) => a.alias.localeCompare(b.alias));
       } catch (e) {
         this.$message().error(e.message);
       }
@@ -556,7 +527,6 @@ export default {
   },
   async mounted () {
     this.clearRss();
-    this.listNotification();
     this.listDownloader();
     this.listRssRule();
     this.listRss();

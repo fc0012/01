@@ -295,7 +295,6 @@ export default {
     return {
       columns,
       downloaders: [],
-      notifications: [],
       deleteRules: [],
       downloader: {},
       defaultDownloader: {
@@ -332,14 +331,6 @@ export default {
       try {
         const res = await this.$api().downloader.list();
         this.downloaders = res.data;
-      } catch (e) {
-        this.$message().error(e.message);
-      }
-    },
-    async listNotification () {
-      try {
-        const res = await this.$api().notification.list();
-        this.notifications = res.data;
       } catch (e) {
         this.$message().error(e.message);
       }
@@ -409,7 +400,6 @@ export default {
   async mounted () {
     this.clearDownloader();
     this.listDeleteRule();
-    this.listNotification();
     this.listDownloader();
   }
 };

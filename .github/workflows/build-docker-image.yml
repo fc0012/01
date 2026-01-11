@@ -30,10 +30,10 @@ jobs:
         echo "CI_COMMIT_MESSAGE=$CI_COMMIT_MESSAGE" >> $GITHUB_ENV
         echo "CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH" >> $GITHUB_ENV
         echo "CI_COMMIT_SHA=${{ github.event.head_commit.id }}" >> $GITHUB_ENV
-        echo "IMAGE_TAG_LATEST=cczc9962/vertex01:latest" >> $GITHUB_ENV
+        echo "IMAGE_TAG_LATEST=cczc9962/vertex02:latest" >> $GITHUB_ENV
         echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
-        echo "IMAGE_TAG_BRANCH=cczc9962/vertex01:$CI_COMMIT_BRANCH" >> $GITHUB_ENV
-        echo "IMAGE_TAG_TIMEVERSION=cczc9962/vertex01:$TIMEVERSION" >> $GITHUB_ENV
+        echo "IMAGE_TAG_BRANCH=cczc9962/vertex02:$CI_COMMIT_BRANCH" >> $GITHUB_ENV
+        echo "IMAGE_TAG_TIMEVERSION=cczc9962/vertex02:$TIMEVERSION" >> $GITHUB_ENV
     - name: Install Dependencies
       run: |
         npm i --save-dev
@@ -83,8 +83,8 @@ jobs:
         cd docker
         sed -i 's/COMMIT_ID/'$CI_COMMIT_SHA'/' Dockerfile
         ls src/static
-        docker pull --platform linux/arm64 cczc9962/vertex01:latest || echo 'fail'
-        docker pull --platform linux/amd64 cczc9962/vertex01:latest || echo 'fail'
+        docker pull --platform linux/arm64 cczc9962/vertex02:latest || echo 'fail'
+        docker pull --platform linux/amd64 cczc9962/vertex02:latest || echo 'fail'
     - name: Build Docker Images
       working-directory: ./docker
       run: |
