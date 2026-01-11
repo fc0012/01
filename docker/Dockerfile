@@ -9,7 +9,7 @@ ARG BASE_IMAGE=node:18-bookworm-slim
 FROM ${BASE_IMAGE}
 
 LABEL maintainer="fc0012"
-LABEL build_from="https://github.com/fc0012/vertex"
+LABEL build_from="https://github.com/fc0012/vertex01"
 
 ENV TZ=Asia/Shanghai
 ENV DEBIAN_FRONTEND=noninteractive
@@ -39,7 +39,7 @@ RUN apt-get update && \
     bash \
     procps && \
   # Clone vertex
-  git clone https://github.com/fc0012/vertex.git /app/vertex && \
+  git clone https://github.com/fc0012/vertex01.git /app/vertex && \
   cd /app/vertex && \
   git checkout COMMIT_ID && \
   rm -rf .git webui && \
