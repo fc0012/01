@@ -65,7 +65,7 @@ exports.scrapeFree = scrape.free;
 exports.scrapeHr = scrape.hr;
 
 exports._requestPromise = util.promisify(request);
-exports.requestPromise = async function (_options, usePuppeteer = false) {
+exports.requestPromise = async function (_options) {
   let options;
   if (typeof _options === 'string') {
     options = {

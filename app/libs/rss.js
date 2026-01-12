@@ -40,9 +40,9 @@ const _getRssContent = async function (rssUrl, suffix = true) {
         headers: {
           cookie: global.runningSite.SoulVoice.cookie
         }
-      }, true);
+      });
     } else {
-      res = await util.requestPromise(url, true);
+      res = await util.requestPromise(url);
     }
     body = res.body;
     const isHTML = body.indexOf('xml-viewer-style') !== -1;

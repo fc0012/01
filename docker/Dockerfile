@@ -30,11 +30,8 @@ RUN apt-get update && \
   fi && \
   # 安装其他依赖
   apt-get install -y --no-install-recommends \
-    python3 python3-pip \
     git \
     redis-server \
-    chromium \
-    xvfb \
     tzdata \
     bash \
     procps && \
@@ -43,7 +40,7 @@ RUN apt-get update && \
   cd /app/vertex && \
   git checkout COMMIT_ID && \
   rm -rf .git webui && \
-  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm i --save && \
+  npm i --save && \
   # 创建目录和符号链接
   mkdir -p /vertex && \
   ln -s /vertex/data /app/vertex/app/data && \
@@ -52,16 +49,6 @@ RUN apt-get update && \
   ln -s /vertex/torrents /app/vertex/torrents && \
   mv /app/vertex/app/config /app/vertex/app/config_backup && \
   ln -s /vertex/config /app/vertex/app/config && \
-  ln -sf /usr/bin/chromium /usr/bin/chromium-browser && \
-  # 安装 Python 包 (兼容新旧版本 pip)
-  python3 -m pip install --no-cache-dir \
-    requests beautifulsoup4 lxml loguru pytz bencodepy \
-    aiohttp httpx pyyaml \
-    qbittorrent-api deluge-client transmission-rpc 2>/dev/null || \
-  python3 -m pip install --no-cache-dir --break-system-packages \
-    requests beautifulsoup4 lxml loguru pytz bencodepy \
-    aiohttp httpx pyyaml \
-    qbittorrent-api deluge-client transmission-rpc && \
   # 清理
   apt-get remove -y git gnupg && \
   apt-get autoremove -y && \
