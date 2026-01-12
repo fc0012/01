@@ -120,7 +120,9 @@
                 <a-select size="small" v-model:value="record.compareType"  >
                   <a-select-option value="equals">等于</a-select-option>
                   <a-select-option value="bigger">大于</a-select-option>
+                  <a-select-option value="greater">大于</a-select-option>
                   <a-select-option value="smaller">小于</a-select-option>
+                  <a-select-option value="less">小于</a-select-option>
                   <a-select-option value="contain">包含</a-select-option>
                   <a-select-option value="includeIn">包含于</a-select-option>
                   <a-select-option value="notContain">不包含</a-select-option>
