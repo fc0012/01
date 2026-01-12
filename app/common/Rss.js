@@ -346,10 +346,12 @@ class Rss {
       const client = fitRule.client ? global.runningClient[fitRule.client] : _client;
       try {
         let truehash = '';
+        let addedHash = torrent.hash;
         this.addCount += 1;
         if (this.pushTorrentFile) {
           const { filepath, hash } = await this._downloadTorrent(torrent.url, torrent.hash);
           truehash = hash;
+          addedHash = hash;
           await client.addTorrentByTorrentFile(filepath, hash, false, this.uploadLimit, this.downloadLimit, savePath, category, this.autoTMM, this.paused);
         } else {
           if (this.useCustomRegex) {
@@ -362,6 +364,20 @@ class Rss {
           } else {
             await client.addTorrent(torrent.url, torrent.hash, false, this.uploadLimit, this.downloadLimit, savePath, category, this.autoTMM, this.paused);
           }
+        }
+        // 如果设置了暂停且有等待时间，则在等待时间后自动恢复下载
+        if (this.paused && this.sleepTime && +this.sleepTime > 0) {
+          const resumeDelay = +this.sleepTime * 1000; // sleepTime 是秒，转换为毫秒
+          const hashToResume = truehash || addedHash;
+          logger.info(this.alias, '种子', torrent.name, '已暂停添加，将在', this.sleepTime, '秒后自动恢复下载');
+          setTimeout(async () => {
+            try {
+              await client.resumeTorrent(hashToResume);
+              logger.info(this.alias, '种子', torrent.name, '等待时间结束，已自动恢复下载');
+            } catch (e) {
+              logger.error(this.alias, '种子', torrent.name, '自动恢复下载失败\n', e);
+            }
+          }, resumeDelay);
         }
         try {
           await this.ntf.addTorrent(this._rss, client, torrent);

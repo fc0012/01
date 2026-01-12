@@ -97,6 +97,7 @@ class Client {
       let value;
       switch (condition.compareType) {
       case 'equals':
+      case 'equal':
         fit = fit && (torrent[condition.key] === condition.value || torrent[condition.key] === +condition.value);
         break;
       case 'bigger':

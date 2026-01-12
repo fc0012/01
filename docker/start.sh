@@ -1,117 +1,48 @@
-#! /bin/bash
+#!/bin/sh
 
+# 迁移旧数据
 if [ -d '/tmp/vertex' ]; then
   rm -rf /vertex/*
   mv /tmp/vertex/* /vertex
   rm -rf /tmp/vertex
 fi
 
-if [ ! -d '/vertex/data' ]; then
-  mkdir /vertex/data/rss -p
-  mkdir /vertex/data/client
-  mkdir /vertex/data/server
-  mkdir /vertex/data/rule/delete -p
-  mkdir /vertex/data/rule/rss
-  mkdir /vertex/data/push
-fi
+# 创建所有必要目录
+mkdir -p /vertex/data/rss \
+         /vertex/data/client \
+         /vertex/data/server \
+         /vertex/data/rule/delete \
+         /vertex/data/rule/rss \
+         /vertex/data/rule/race \
+         /vertex/data/rule/raceSet \
+         /vertex/data/rule/link \
+         /vertex/data/push \
+         /vertex/data/script \
+         /vertex/data/watch/set \
+         /vertex/data/site \
+         /vertex/data/race \
+         /vertex/data/setting \
+         /vertex/data/douban/set \
+         /vertex/db \
+         /vertex/torrents \
+         /vertex/logs \
+         /vertex/config
 
-if [ ! -d '/vertex/data/rule/race' ]; then
-  mkdir /vertex/data/rule/race
-fi
+# 初始化配置文件
+[ ! -f '/vertex/db/sql.db' ] && cp /app/vertex/app/config_backup/sql.db /vertex/db/
+[ ! -f '/vertex/config/config.yaml' ] && cp /app/vertex/app/config_backup/*.yaml /vertex/config/ && cp /vertex/config/config.example.yaml /vertex/config/config.yaml
+[ ! -f '/vertex/data/setting.json' ] && cp /app/vertex/app/config_backup/setting.json /vertex/data/
+[ ! -f '/vertex/data/link-mapping.json' ] && echo '{}' > /vertex/data/link-mapping.json
+[ ! -f '/vertex/data/bulk-link-history.json' ] && echo '{}' > /vertex/data/bulk-link-history.json
 
-if [ ! -d '/vertex/data/script' ]; then
-  mkdir /vertex/data/script
-fi
+# 初始化设置文件
+for f in torrent-history-setting torrent-mix-setting site-push-setting torrent-push-setting proxy; do
+  [ ! -f "/vertex/data/setting/${f}.json" ] && cp "/app/vertex/app/config_backup/${f}.json" /vertex/data/setting/ 2>/dev/null || true
+done
 
-if [ ! -d '/vertex/data/watch' ]; then
-  mkdir /vertex/data/watch/set -p
-fi
+# 自定义 hosts
+[ -f '/vertex/data/hosts' ] && cat /vertex/data/hosts >> /etc/hosts
 
-if [ ! -d '/vertex/data/rule/raceSet' ]; then
-  mkdir /vertex/data/rule/raceSet
-fi
-
-if [ ! -d '/vertex/data/rule/link' ]; then
-  mkdir /vertex/data/rule/link
-fi
-
-if [ ! -d '/vertex/data/site' ]; then
-  mkdir /vertex/data/site
-fi
-
-if [ ! -d '/vertex/data/race' ]; then
-  mkdir /vertex/data/race
-fi
-
-if [ ! -d '/vertex/data/setting' ]; then
-  mkdir /vertex/data/setting
-fi
-
-if [ ! -d '/vertex/data/douban' ]; then
-  mkdir /vertex/data/douban/set -p
-fi
-
-if [ ! -d '/vertex/db' ]; then
-  mkdir /vertex/db
-fi
-
-if [ ! -d '/vertex/torrents' ]; then
-  mkdir /vertex/torrents
-fi
-
-if [ ! -f '/vertex/db/sql.db' ]; then
-  cp /app/vertex/app/config_backup/sql.db /vertex/db/sql.db
-fi
-
-if [ ! -d '/vertex/logs' ]; then
-  mkdir /vertex/logs
-fi
-
-if [ ! -f '/vertex/config/config.yaml' ]; then
-  mkdir /vertex/config
-  cp /app/vertex/app/config_backup/*.yaml /vertex/config/
-  cp /vertex/config/config.example.yaml /vertex/config/config.yaml
-fi
-
-if [ ! -f '/vertex/data/setting.json' ]; then
-  cp /app/vertex/app/config_backup/setting.json /vertex/data/
-fi
-
-if [ ! -f '/vertex/data/link-mapping.json' ]; then
-  echo '{}' > /vertex/data/link-mapping.json
-fi
-
-if [ ! -f '/vertex/data/bulk-link-history.json' ]; then
-  echo '{}' > /vertex/data/bulk-link-history.json
-fi
-
-if [ -f '/vertex/data/hosts' ]; then
-  echo "`cat /vertex/data/hosts`" > /etc/hosts
-fi
-
-if [ ! -f '/vertex/data/setting/torrent-history-setting.json' ]; then
-  cp /app/vertex/app/config_backup/torrent-history-setting.json /vertex/data/setting/
-fi
-
-if [ ! -f '/vertex/data/setting/torrent-mix-setting.json' ]; then
-  cp /app/vertex/app/config_backup/torrent-mix-setting.json /vertex/data/setting/
-fi
-
-if [ ! -f '/vertex/data/setting/site-push-setting.json' ]; then
-  cp /app/vertex/app/config_backup/site-push-setting.json /vertex/data/setting/
-fi
-
-if [ ! -f '/vertex/data/setting/torrent-push-setting.json' ]; then
-  cp /app/vertex/app/config_backup/torrent-push-setting.json /vertex/data/setting/
-fi
-
-if [ ! -f '/vertex/data/setting/proxy.json' ]; then
-  cp /app/vertex/app/config_backup/proxy.json /vertex/data/setting/
-fi
-
-if [ -f '/tmp/.X99-lock' ]; then
-  rm /tmp/.X99-lock
-fi
 echo "
  __      ________ _____ _______ ________   __ 
  \ \    / /  ____|  __ \__   __|  ____\ \ / / 
@@ -122,16 +53,25 @@ echo "
 
 STARTING....
 "
+
 cp /app/vertex/app/config_backup/logger.yaml /vertex/config/logger.yaml
 
-VUID=`[ $PUID ] && echo $PUID || echo 0`
-VGID=`[ $PGID ] && echo $PGID || echo 0`
-usermod -o -u ${VUID} vt > /dev/null 2>&1 ||:
-groupmod -o -g ${VGID} vt > /dev/null 2>&1 ||:
-usermod -g ${VGID} vt > /dev/null 2>&1 ||:
+# 设置用户权限
+VUID=${PUID:-0}
+VGID=${PGID:-0}
+if command -v usermod > /dev/null 2>&1; then
+  usermod -o -u ${VUID} vt 2>/dev/null || true
+  groupmod -o -g ${VGID} vt 2>/dev/null || true
+  usermod -g ${VGID} vt 2>/dev/null || true
+else
+  deluser vt 2>/dev/null || true
+  addgroup -g ${VGID} vt 2>/dev/null || true
+  adduser -D -u ${VUID} -G vt -h /app/vertex -s /bin/sh vt 2>/dev/null || true
+fi
+
 chown -R ${VUID}:${VGID} /vertex
-export PORT=`[ $PORT ] && echo $PORT || echo 3000`
-export REDISPORT=`[ $REDISPORT ] && echo $REDISPORT || echo 6379`
-cp /usr/share/zoneinfo/$TZ /app/localtime
-/usr/bin/redis-server /app/redis.conf --port $REDISPORT
-su vt -c 'cd /app/vertex && node app/app.js > /dev/null'
+cp /usr/share/zoneinfo/$TZ /app/localtime 2>/dev/null || true
+
+# 启动服务
+redis-server /app/redis.conf --port ${REDISPORT:-6379}
+su vt -c "cd /app/vertex && PORT=${PORT:-3000} node app/app.js"

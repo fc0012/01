@@ -214,7 +214,7 @@ function getDefaultRuleDefinitions () {
       conditions: [
         { key: 'progress', compareType: 'bigger', value: '0.2' },
         { key: 'ratio', compareType: 'smaller', value: '0.1' },
-        { key: 'category', compareType: 'notContainIn', value: 'KEEP,keep' }
+        { key: 'category', compareType: 'notIncludeIn', value: 'KEEP,keep' }
       ]
     },
     {

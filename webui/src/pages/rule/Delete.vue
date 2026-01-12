@@ -119,6 +119,7 @@
               <template v-if="column.dataIndex === 'compareType'">
                 <a-select size="small" v-model:value="record.compareType"  >
                   <a-select-option value="equals">等于</a-select-option>
+                  <a-select-option value="equal">等于</a-select-option>
                   <a-select-option value="bigger">大于</a-select-option>
                   <a-select-option value="greater">大于</a-select-option>
                   <a-select-option value="smaller">小于</a-select-option>
