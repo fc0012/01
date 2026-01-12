@@ -100,6 +100,7 @@ class Client {
         fit = fit && (torrent[condition.key] === condition.value || torrent[condition.key] === +condition.value);
         break;
       case 'bigger':
+      case 'greater':
         value = 1;
         condition.value.split('*').forEach(item => {
           value *= +item;
@@ -107,6 +108,7 @@ class Client {
         fit = fit && torrent[condition.key] > value;
         break;
       case 'smaller':
+      case 'less':
         value = 1;
         condition.value.split('*').forEach(item => {
           value *= +item;

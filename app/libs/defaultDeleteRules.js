@@ -22,9 +22,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'freeSpace', compareType: 'less', value: '50*1024*1024*1024' },
-        { key: 'progress', compareType: 'greater', value: '0.01' },
-        { key: 'uploadSpeed', compareType: 'less', value: '1*1024*1024' },
+        { key: 'freeSpace', compareType: 'smaller', value: '50*1024*1024*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.01' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '1*1024*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -38,9 +38,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'freeSpace', compareType: 'less', value: '40*1024*1024*1024' },
-        { key: 'progress', compareType: 'greater', value: '0.01' },
-        { key: 'uploadSpeed', compareType: 'less', value: '5*1024*1024' },
+        { key: 'freeSpace', compareType: 'smaller', value: '40*1024*1024*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.01' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '5*1024*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -54,9 +54,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'freeSpace', compareType: 'less', value: '30*1024*1024*1024' },
-        { key: 'progress', compareType: 'greater', value: '0.01' },
-        { key: 'uploadSpeed', compareType: 'less', value: '8*1024*1024' },
+        { key: 'freeSpace', compareType: 'smaller', value: '30*1024*1024*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.01' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '8*1024*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -70,9 +70,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'freeSpace', compareType: 'less', value: '20*1024*1024*1024' },
-        { key: 'progress', compareType: 'greater', value: '0.01' },
-        { key: 'uploadSpeed', compareType: 'less', value: '30*1024*1024' },
+        { key: 'freeSpace', compareType: 'smaller', value: '20*1024*1024*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.01' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '30*1024*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -86,9 +86,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'freeSpace', compareType: 'less', value: '10*1024*1024*1024' },
-        { key: 'progress', compareType: 'greater', value: '0.01' },
-        { key: 'uploadSpeed', compareType: 'less', value: '130*1024*1024' },
+        { key: 'freeSpace', compareType: 'smaller', value: '10*1024*1024*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.01' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '130*1024*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -102,9 +102,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'freeSpace', compareType: 'less', value: '5*1024*1024*1024' },
-        { key: 'progress', compareType: 'greater', value: '0.01' },
-        { key: 'uploadSpeed', compareType: 'less', value: '230*1024*1024' },
+        { key: 'freeSpace', compareType: 'smaller', value: '5*1024*1024*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.01' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '230*1024*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -118,9 +118,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'freeSpace', compareType: 'less', value: '100*1024*1024*1024' },
-        { key: 'progress', compareType: 'greater', value: '0.01' },
-        { key: 'uploadSpeed', compareType: 'less', value: '50*1024' },
+        { key: 'freeSpace', compareType: 'smaller', value: '100*1024*1024*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.01' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '50*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -135,8 +135,8 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'ratio3', compareType: 'greater', value: '4.1' },
-        { key: 'completedTime', compareType: 'greater', value: '3600' },
+        { key: 'ratio3', compareType: 'bigger', value: '4.1' },
+        { key: 'completedTime', compareType: 'bigger', value: '3600' },
         { key: 'category', compareType: 'contain', value: 'SD' }
       ]
     },
@@ -150,9 +150,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'completedTime', compareType: 'greater', value: '1200' },
-        { key: 'ratio3', compareType: 'less', value: '4.1' },
-        { key: 'uploadSpeed', compareType: 'less', value: '1*1024*1024' },
+        { key: 'completedTime', compareType: 'bigger', value: '1200' },
+        { key: 'ratio3', compareType: 'smaller', value: '4.1' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '1*1024*1024' },
         { key: 'category', compareType: 'contain', value: 'SD' }
       ]
     },
@@ -181,8 +181,8 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'progress', compareType: 'greater', value: '0.65' },
-        { key: 'uploadSpeed', compareType: 'less', value: '800*1024' },
+        { key: 'progress', compareType: 'bigger', value: '0.65' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '800*1024' },
         { key: 'category', compareType: 'notContain', value: 'keep' },
         { key: 'category', compareType: 'equal', value: 'sb' }
       ]
@@ -197,7 +197,7 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'ratio3', compareType: 'greater', value: '3.5' },
+        { key: 'ratio3', compareType: 'bigger', value: '3.5' },
         { key: 'category', compareType: 'contain', value: 'MTV' },
         { key: 'category', compareType: 'notContain', value: 'keep' }
       ]
@@ -212,8 +212,8 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'progress', compareType: 'greater', value: '0.2' },
-        { key: 'ratio', compareType: 'less', value: '0.1' },
+        { key: 'progress', compareType: 'bigger', value: '0.2' },
+        { key: 'ratio', compareType: 'smaller', value: '0.1' },
         { key: 'category', compareType: 'notContainIn', value: 'KEEP,keep' }
       ]
     },
@@ -229,8 +229,8 @@ function getDefaultRuleDefinitions () {
       conditions: [
         { key: 'progress', compareType: 'equal', value: '0' },
         { key: 'category', compareType: 'notContain', value: 'KEEP,keep' },
-        { key: 'addedTime', compareType: 'greater', value: '24*3600' },
-        { key: 'uploadSpeed', compareType: 'less', value: '50*1024' }
+        { key: 'addedTime', compareType: 'bigger', value: '24*3600' },
+        { key: 'uploadSpeed', compareType: 'smaller', value: '50*1024' }
       ]
     },
     {
@@ -243,7 +243,7 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'ratio', compareType: 'greater', value: '3.5' },
+        { key: 'ratio', compareType: 'bigger', value: '3.5' },
         { key: 'category', compareType: 'notContain', value: 'keep,KEEP' }
       ]
     },
@@ -257,9 +257,9 @@ function getDefaultRuleDefinitions () {
       onlyDeleteTorrent: false,
       limitSpeed: '',
       conditions: [
-        { key: 'completedTime', compareType: 'greater', value: '75600' },
+        { key: 'completedTime', compareType: 'bigger', value: '75600' },
         { key: 'category', compareType: 'contain', value: 'BTS' },
-        { key: 'uploadSpeed', compareType: 'less', value: '100*1024' }
+        { key: 'uploadSpeed', compareType: 'smaller', value: '100*1024' }
       ]
     },
     // JavaScript 规则
