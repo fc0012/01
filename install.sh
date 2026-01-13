@@ -43,7 +43,6 @@ detect_os() {
     else
         OS="unknown"
     fi
-    echo "$OS"
 }
 
 install_docker_debian() {
@@ -52,15 +51,23 @@ install_docker_debian() {
     apt-get install -y -qq ca-certificates curl gnupg lsb-release >/dev/null 2>&1
     
     mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/$OS/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null
+    
+    # 确定发行版名称
+    local distro="$OS"
+    [ "$distro" = "linuxmint" ] || [ "$distro" = "pop" ] && distro="ubuntu"
+    
+    curl -fsSL "https://download.docker.com/linux/${distro}/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null
     chmod a+r /etc/apt/keyrings/docker.gpg
     
     # 对于未知版本，使用最新稳定版的 codename
     local codename="${CODENAME:-bookworm}"
     # Debian 13 (trixie) 回退到 bookworm
     [ "$codename" = "trixie" ] && codename="bookworm"
+    # Linux Mint / Pop!_OS 使用对应的 Ubuntu codename
+    [ "$OS" = "linuxmint" ] && codename="jammy"
+    [ "$OS" = "pop" ] && codename="jammy"
     
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$OS $codename stable" > /etc/apt/sources.list.d/docker.list
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${distro} ${codename} stable" > /etc/apt/sources.list.d/docker.list
     
     apt-get update -qq
     apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin >/dev/null 2>&1
@@ -99,10 +106,10 @@ install_docker_generic() {
 }
 
 install_docker() {
-    local os=$(detect_os)
-    print_info "Detected OS: $os"
+    detect_os
+    print_info "Detected OS: $OS"
     
-    case "$os" in
+    case "$OS" in
         ubuntu|debian|linuxmint|pop)
             install_docker_debian
             ;;
