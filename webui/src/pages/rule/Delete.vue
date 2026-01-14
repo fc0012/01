@@ -3,7 +3,7 @@
   <a-divider></a-divider>
   <div class="delete-rule">
     <a-table
-      :style="`font-size: ${isMobile() ? '12px': '14px'};`"
+      :style="`font-size: ${mobile ? '12px': '14px'};`"
       :columns="columns"
       size="small"
       :data-source="deleteRuleList"
@@ -43,7 +43,7 @@
         :labelCol="{ span: 3 }"
         :wrapperCol="{ span: 21 }"
         autocomplete="off"
-        :class="`container-form-${ isMobile() ? 'mobile' : 'pc' }`">
+        :class="`container-form-${ mobile ? 'mobile' : 'pc' }`">
         <a-form-item
           label="别名"
           name="alias"
@@ -103,12 +103,12 @@
           extra="关于各个条件的介绍，可以查看下方的说明"
           :rules="[{ required: true, message: '${label}不可为空! ' }]">
           <a-table
-            :style="`font-size: ${isMobile() ? '12px': '14px'};`"
+            :style="`font-size: ${mobile ? '12px': '14px'};`"
             :columns="conditionColumns"
             size="small"
             :data-source="deleteRule.conditions"
             :pagination="false"
-            :scroll="{ x: 540 }"
+            :scroll="{ x: 600 }"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'key'">
@@ -118,18 +118,7 @@
               </template>
               <template v-if="column.dataIndex === 'compareType'">
                 <a-select size="small" v-model:value="record.compareType"  >
-                  <a-select-option value="equals">等于</a-select-option>
-                  <a-select-option value="equal">等于</a-select-option>
-                  <a-select-option value="bigger">大于</a-select-option>
-                  <a-select-option value="greater">大于</a-select-option>
-                  <a-select-option value="smaller">小于</a-select-option>
-                  <a-select-option value="less">小于</a-select-option>
-                  <a-select-option value="contain">包含</a-select-option>
-                  <a-select-option value="includeIn">包含于</a-select-option>
-                  <a-select-option value="notContain">不包含</a-select-option>
-                  <a-select-option value="notIncludeIn">不包含于</a-select-option>
-                  <a-select-option value="regExp">正则匹配</a-select-option>
-                  <a-select-option value="notRegExp">正则不匹配</a-select-option>
+                  <a-select-option v-for="type in compareTypes" :key="type.value" :value="type.value">{{ type.label }}</a-select-option>
                 </a-select>
               </template>
               <template v-if="column.dataIndex === 'value'">
@@ -156,7 +145,7 @@
           <a-textarea  v-model:value="deleteRule.code" type="textarea" :rows="10"></a-textarea >
         </a-form-item>
         <a-form-item
-          :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
+          :wrapperCol="mobile ? { span:24 } : { span: 21, offset: 3 }">
           <a-button type="primary" html-type="submit" style="margin-top: 24px; margin-bottom: 48px;">应用 | 完成</a-button>
           <a-button style="margin-left: 12px; margin-top: 24px; margin-bottom: 48px;" @click="clearDeleteRule()">清空</a-button>
         </a-form-item>
@@ -230,53 +219,65 @@ export default {
       {
         title: 'ID',
         dataIndex: 'id',
-        width: 18,
+        width: 80,
         sorter: (a, b) => a.id.localeCompare(b.id),
         fixed: true
       }, {
         title: '别名',
         dataIndex: 'alias',
         sorter: (a, b) => a.alias.localeCompare(b.alias),
-        width: 30
+        width: 120
       }, {
         title: '持续时间',
         dataIndex: 'fitTime',
-        width: 30
+        width: 120
       }, {
         title: '优先级',
         dataIndex: 'priority',
-        width: 10
+        width: 80
       }, {
         title: '类型',
         dataIndex: 'type',
-        width: 15
+        width: 100
       }, {
         title: '操作',
-        width: 20
+        width: 100
       }
     ];
     const conditionColumns = [
       {
         title: '选项',
         dataIndex: 'key',
-        width: 18
+        width: 150
       }, {
         title: '比较类型',
         dataIndex: 'compareType',
-        width: 18
+        width: 150
       }, {
         title: '值',
         dataIndex: 'value',
-        width: 90
+        width: 250
       }, {
         title: '操作',
         dataIndex: 'option',
-        width: 30
+        width: 80
       }
+    ];
+    const compareTypes = [
+      { value: 'equal', label: '等于' },
+      { value: 'greater', label: '大于' },
+      { value: 'less', label: '小于' },
+      { value: 'contain', label: '包含' },
+      { value: 'includeIn', label: '包含于' },
+      { value: 'notContain', label: '不包含' },
+      { value: 'notIncludeIn', label: '不包含于' },
+      { value: 'regExp', label: '正则匹配' },
+      { value: 'notRegExp', label: '正则不匹配' }
     ];
     return {
       columns,
       conditionColumns,
+      compareTypes,
       conditionKeys: [{
         name: '种子名称',
         key: 'name'
@@ -381,14 +382,12 @@ export default {
       deleteRuleList: []
     };
   },
+  computed: {
+    mobile () {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+  },
   methods: {
-    isMobile () {
-      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        return true;
-      } else {
-        return false;
-      }
-    },
     async listDeleteRule () {
       try {
         const res = await this.$api().deleteRule.list();
