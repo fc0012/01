@@ -20,15 +20,4 @@ bash <(wget -qO- https://raw.githubusercontent.com/fc0012/vertex02/stable/instal
 
 安装完成后，访问 `http://你的服务器IP:3000` 即可使用。
 
-## 功能特性
 
-- RSS 订阅自动下载
-- 影视订阅追剧
-- 定时脚本任务
-- Python/Shell 脚本支持
-- 多下载器管理
-- 站点数据监控
-
-## Wiki
-
-[https://wiki.vertex-app.top](https://wiki.vertex-app.top)
