@@ -7,7 +7,6 @@
 
 const logger = require('../libs/logger');
 const UserMod = require('../model/UserMod');
-const { asyncHandler } = require('../middleware/errorHandler');
 
 const userMod = new UserMod();
 

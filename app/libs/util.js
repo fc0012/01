@@ -523,7 +523,7 @@ exports.sumArray = function (arr) {
 exports.fitConditions = function (torrent, conditions, extraFields = {}) {
   let fit = true;
   const _torrent = { ...torrent, ...extraFields };
-  
+
   for (const condition of conditions) {
     let value;
     switch (condition.compareType) {
