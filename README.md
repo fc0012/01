@@ -15,7 +15,7 @@ bash <(curl -sSL https://raw.githubusercontent.com/fc0012/01/stable/install.sh)
 或者使用 wget：
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/fc0012/vertex02/stable/install.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/fc0012/01/stable/install.sh)
 ```
 
 安装完成后，访问 `http://你的服务器IP:3000` 即可使用。
