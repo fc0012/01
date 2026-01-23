@@ -9,7 +9,7 @@
 在 Linux 服务器上执行以下命令即可快速安装 VERTEX：
 
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/fc0012/vertex02/stable/install.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/fc0012/01/stable/install.sh)
 ```
 
 或者使用 wget：
