@@ -21,7 +21,7 @@ RUN if command -v apk > /dev/null 2>&1; then \
       python3 \
       make \
       g++ && \
-    git clone https://github.com/fc0012/vertex02.git /app/vertex && \
+    git clone https://github.com/fc0012/01.git /app/vertex && \
     cd /app/vertex && \
     git checkout COMMIT_ID && \
     rm -rf .git webui && \
@@ -50,7 +50,7 @@ RUN if command -v apk > /dev/null 2>&1; then \
       apt-get update && \
       apt-get install -y nodejs; \
     fi && \
-    git clone https://github.com/fc0012/vertex02.git /app/vertex && \
+    git clone https://github.com/fc0012/01.git /app/vertex && \
     cd /app/vertex && \
     git checkout COMMIT_ID && \
     rm -rf .git webui && \
