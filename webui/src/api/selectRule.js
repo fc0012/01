@@ -1,16 +1,10 @@
-import { get, post } from '../util/axios';
+/**
+ * SelectRule API
+ *
+ * 选种规则 API 模块
+ * 使用 API 工厂函数创建标准 CRUD 操作
+ */
 
-export default {
-  list: async () => {
-    const url = '/api/selectRule/list';
-    return await get(url);
-  },
-  modify: async (selectRule) => {
-    const url = '/api/selectRule/' + (selectRule.id ? 'modify' : 'add');
-    return await post(url, selectRule);
-  },
-  delete: async (id) => {
-    const url = '/api/selectRule/delete';
-    return await post(url, { id });
-  }
-};
+import { createCrudApi } from '../util/apiFactory';
+
+export default createCrudApi('/api/selectRule');

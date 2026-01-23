@@ -23,7 +23,14 @@ for (const k of Object.keys(util)) {
 
 exports.redlock = redlock;
 
-exports.getRecords = async function (sql, options = []) {
+/**
+ * 获取多条记录
+ * @param {string} sql - SQL 查询语句
+ * @param {Array} options - 查询参数数组
+ * @returns {Array} 查询结果数组
+ * @note 使用 better-sqlite3，这是一个同步库
+ */
+exports.getRecords = function (sql, options = []) {
   let _sql = sql;
   if (options) {
     options.forEach((item) => {
@@ -34,7 +41,14 @@ exports.getRecords = async function (sql, options = []) {
   return db.prepare(sql).all(...options);
 };
 
-exports.runRecord = async function (sql, options = []) {
+/**
+ * 执行 SQL 语句（INSERT/UPDATE/DELETE）
+ * @param {string} sql - SQL 语句
+ * @param {Array} options - 参数数组
+ * @returns {Object} 执行结果
+ * @note 使用 better-sqlite3，这是一个同步库
+ */
+exports.runRecord = function (sql, options = []) {
   let _sql = sql;
   if (options) {
     options.forEach((item) => {
@@ -45,7 +59,14 @@ exports.runRecord = async function (sql, options = []) {
   return db.prepare(sql).run(...options);
 };
 
-exports.getRecord = async function (sql, options = []) {
+/**
+ * 获取单条记录
+ * @param {string} sql - SQL 查询语句
+ * @param {Array} options - 查询参数数组
+ * @returns {Object|null} 查询结果对象，如果没有则返回 null
+ * @note 使用 better-sqlite3，这是一个同步库
+ */
+exports.getRecord = function (sql, options = []) {
   let _sql = sql;
   if (options) {
     options.forEach((item) => {
@@ -302,40 +323,6 @@ exports.listRaceRuleSet = function () {
   return raceRuleSetList;
 };
 
-exports.listDouban = function () {
-  try {
-    const files = fs.readdirSync(path.join(__dirname, '../data/douban'));
-    const DoubanList = [];
-    for (const file of files) {
-      if (path.extname(file) === '.json') {
-        const douban = _importJson(path.join(__dirname, '../data/douban', file));
-        if (douban.enable === undefined) {
-          douban.enable = true;
-        }
-        DoubanList.push(douban);
-      }
-    }
-    return DoubanList;
-  } catch (e) {
-    return [];
-  }
-};
-
-exports.listDoubanSet = function () {
-  try {
-    const files = fs.readdirSync(path.join(__dirname, '../data/douban/set'));
-    const doubanSetList = [];
-    for (const file of files) {
-      if (path.extname(file) === '.json') {
-        doubanSetList.push(_importJson(path.join(__dirname, '../data/douban/set', file)));
-      }
-    }
-    return doubanSetList;
-  } catch (e) {
-    return [];
-  }
-};
-
 exports.listCrontabJavaScript = function () {
   const files = fs.readdirSync(path.join(__dirname, '../data/script'));
   const scriptList = [];
@@ -511,4 +498,74 @@ exports.initCookieCloud = function () {
     };
   });
   // init
+};
+
+/**
+ * 计算数组元素总和
+ * @param {Array} arr - 数字数组
+ * @returns {number} 总和
+ */
+exports.sumArray = function (arr) {
+  let sum = 0;
+  for (const item of arr) {
+    sum += item;
+  }
+  return sum;
+};
+
+/**
+ * 检查种子是否匹配条件
+ * @param {Object} torrent - 种子对象
+ * @param {Array} conditions - 条件数组
+ * @param {Object} [extraFields] - 额外的计算字段（可选）
+ * @returns {boolean} 是否匹配所有条件
+ */
+exports.fitConditions = function (torrent, conditions, extraFields = {}) {
+  let fit = true;
+  const _torrent = { ...torrent, ...extraFields };
+  
+  for (const condition of conditions) {
+    let value;
+    switch (condition.compareType) {
+    case 'equals':
+    case 'equal':
+      fit = fit && (_torrent[condition.key] === condition.value || _torrent[condition.key] === +condition.value);
+      break;
+    case 'bigger':
+    case 'greater':
+      value = 1;
+      condition.value.split('*').forEach(item => {
+        value *= +item;
+      });
+      fit = fit && _torrent[condition.key] > value;
+      break;
+    case 'smaller':
+    case 'less':
+      value = 1;
+      condition.value.split('*').forEach(item => {
+        value *= +item;
+      });
+      fit = fit && _torrent[condition.key] < value;
+      break;
+    case 'contain':
+      fit = fit && condition.value.split(',').filter(item => _torrent[condition.key].indexOf(item) !== -1).length !== 0;
+      break;
+    case 'includeIn':
+      fit = fit && condition.value.split(',').indexOf(_torrent[condition.key]) !== -1;
+      break;
+    case 'notContain':
+      fit = fit && condition.value.split(',').filter(item => _torrent[condition.key].indexOf(item) !== -1).length === 0;
+      break;
+    case 'notIncludeIn':
+      fit = fit && condition.value.split(',').indexOf(_torrent[condition.key]) === -1;
+      break;
+    case 'regExp':
+      fit = fit && (_torrent[condition.key] + '').match(new RegExp(condition.value));
+      break;
+    case 'notRegExp':
+      fit = fit && !(_torrent[condition.key] + '').match(new RegExp(condition.value));
+      break;
+    }
+  }
+  return fit;
 };

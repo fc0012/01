@@ -1,74 +1,19 @@
-const logger = require('../libs/logger');
+/**
+ * RaceRuleSet Controller
+ *
+ * 选种规则集管理控制器
+ *
+ * 注意：此功能后端已完整实现，但前端暂未提供界面。
+ * 后端 API 可正常使用，主要用于管理多个选种规则的组合。
+ */
+
+const BaseController = require('./BaseController');
 const RaceRuleSetMod = require('../model/RaceRuleSetMod');
 
-const raceRuleSetMod = new RaceRuleSetMod();
-
-class RaceRuleSet {
-  async add (req, res) {
-    const options = req.body;
-    try {
-      const r = raceRuleSetMod.add(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async delete (req, res) {
-    const options = req.body;
-    try {
-      const r = raceRuleSetMod.delete(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async modify (req, res) {
-    const options = req.body;
-    try {
-      const r = raceRuleSetMod.modify(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async list (req, res) {
-    try {
-      const r = raceRuleSetMod.list();
-      res.send({
-        success: true,
-        data: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
+class RaceRuleSet extends BaseController {
+  constructor () {
+    super(new RaceRuleSetMod(), '选种规则集');
+  }
 }
+
 module.exports = RaceRuleSet;

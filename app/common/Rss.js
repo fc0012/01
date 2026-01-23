@@ -68,11 +68,7 @@ class Rss {
   };
 
   _sum (arr) {
-    let sum = 0;
-    for (const item of arr) {
-      sum += item;
-    }
-    return sum;
+    return util.sumArray(arr);
   }
 
   _getSum (a, b) {
@@ -112,50 +108,11 @@ class Rss {
   };
 
   _fitConditions (_torrent, conditions) {
-    let fit = true;
-    const torrent = { ..._torrent };
-    torrent.description = torrent.description || '';
-    for (const condition of conditions) {
-      let value;
-      switch (condition.compareType) {
-      case 'equals':
-        fit = fit && (torrent[condition.key] === condition.value || torrent[condition.key] === +condition.value);
-        break;
-      case 'bigger':
-        value = 1;
-        condition.value.split('*').forEach(item => {
-          value *= +item;
-        });
-        fit = fit && torrent[condition.key] > value;
-        break;
-      case 'smaller':
-        value = 1;
-        condition.value.split('*').forEach(item => {
-          value *= +item;
-        });
-        fit = fit && torrent[condition.key] < value;
-        break;
-      case 'contain':
-        fit = fit && condition.value.split(',').filter(item => torrent[condition.key].indexOf(item) !== -1).length !== 0;
-        break;
-      case 'includeIn':
-        fit = fit && condition.value.split(',').indexOf(torrent[condition.key]) !== -1;
-        break;
-      case 'notContain':
-        fit = fit && condition.value.split(',').filter(item => torrent[condition.key].indexOf(item) !== -1).length === 0;
-        break;
-      case 'notIncludeIn':
-        fit = fit && condition.value.split(',').indexOf(torrent[condition.key]) === -1;
-        break;
-      case 'regExp':
-        fit = fit && (torrent[condition.key] + '').match(new RegExp(condition.value, 'ig'));
-        break;
-      case 'notRegExp':
-        fit = fit && !(torrent[condition.key] + '').match(new RegExp(condition.value, 'ig'));
-        break;
-      }
-    }
-    return fit;
+    const extraFields = {
+      description: _torrent.description || ''
+    };
+    // RSS 规则使用全局匹配和不区分大小写
+    return util.fitConditions(_torrent, conditions, extraFields);
   }
 
   _fitRule (_rule, _torrent) {

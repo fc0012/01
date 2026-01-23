@@ -1,74 +1,16 @@
-const logger = require('../libs/logger');
+const BaseController = require('./BaseController');
 const DeleteRuleMod = require('../model/DeleteRuleMod');
 
-const deleteRuleMod = new DeleteRuleMod();
-
-class DeleteRule {
-  async add (req, res) {
-    const options = req.body;
-    try {
-      const r = deleteRuleMod.add(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async delete (req, res) {
-    const options = req.body;
-    try {
-      const r = deleteRuleMod.delete(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async modify (req, res) {
-    const options = req.body;
-    try {
-      const r = deleteRuleMod.modify(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async list (req, res) {
-    try {
-      const r = deleteRuleMod.list();
-      res.send({
-        success: true,
-        data: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
+/**
+ * DeleteRule Controller
+ *
+ * 删种规则管理控制器
+ * 继承自 BaseController，提供删种规则的 CRUD 操作
+ */
+class DeleteRule extends BaseController {
+  constructor () {
+    super(new DeleteRuleMod(), '删种规则');
+  }
 }
+
 module.exports = DeleteRule;

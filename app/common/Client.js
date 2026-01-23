@@ -72,71 +72,24 @@ class Client {
   };
 
   _sum (arr) {
-    let sum = 0;
-    for (const item of arr) {
-      sum += item;
-    }
-    return sum;
+    return util.sumArray(arr);
   };
 
   _fitConditions (_torrent, conditions) {
-    let fit = true;
-    const torrent = { ..._torrent };
-    torrent.ratio = torrent.uploaded / torrent.size;
-    torrent.trueRatio = torrent.uploaded / ((torrent.downloaded === 0 && torrent.uploaded !== 0) ? torrent.size : torrent.downloaded);
-    torrent.ratio3 = torrent.uploaded / torrent.totalSize;
-    torrent.addedTime = moment().unix() - torrent.addedTime;
-    torrent.completedTime = moment().unix() - (torrent.completedTime <= 0 ? moment().unix() : torrent.completedTime);
-    torrent.freeSpace = this.maindata.freeSpaceOnDisk;
-    torrent.secondFromZero = moment().unix() - moment().startOf('day').unix();
-    torrent.leechingCount = this.maindata.leechingCount;
-    torrent.seedingCount = this.maindata.seedingCount;
-    torrent.globalUploadSpeed = this.avgUploadSpeed;
-    torrent.globalDownloadSpeed = this.avgDownloadSpeed;
-    for (const condition of conditions) {
-      let value;
-      switch (condition.compareType) {
-      case 'equals':
-      case 'equal':
-        fit = fit && (torrent[condition.key] === condition.value || torrent[condition.key] === +condition.value);
-        break;
-      case 'bigger':
-      case 'greater':
-        value = 1;
-        condition.value.split('*').forEach(item => {
-          value *= +item;
-        });
-        fit = fit && torrent[condition.key] > value;
-        break;
-      case 'smaller':
-      case 'less':
-        value = 1;
-        condition.value.split('*').forEach(item => {
-          value *= +item;
-        });
-        fit = fit && torrent[condition.key] < value;
-        break;
-      case 'contain':
-        fit = fit && condition.value.split(',').filter(item => torrent[condition.key].indexOf(item) !== -1).length !== 0;
-        break;
-      case 'includeIn':
-        fit = fit && condition.value.split(',').indexOf(torrent[condition.key]) !== -1;
-        break;
-      case 'notContain':
-        fit = fit && condition.value.split(',').filter(item => torrent[condition.key].indexOf(item) !== -1).length === 0;
-        break;
-      case 'notIncludeIn':
-        fit = fit && condition.value.split(',').indexOf(torrent[condition.key]) === -1;
-        break;
-      case 'regExp':
-        fit = fit && (torrent[condition.key] + '').match(new RegExp(condition.value));
-        break;
-      case 'notRegExp':
-        fit = fit && !(torrent[condition.key] + '').match(new RegExp(condition.value));
-        break;
-      }
-    }
-    return fit;
+    const extraFields = {
+      ratio: _torrent.uploaded / _torrent.size,
+      trueRatio: _torrent.uploaded / ((_torrent.downloaded === 0 && _torrent.uploaded !== 0) ? _torrent.size : _torrent.downloaded),
+      ratio3: _torrent.uploaded / _torrent.totalSize,
+      addedTime: moment().unix() - _torrent.addedTime,
+      completedTime: moment().unix() - (_torrent.completedTime <= 0 ? moment().unix() : _torrent.completedTime),
+      freeSpace: this.maindata.freeSpaceOnDisk,
+      secondFromZero: moment().unix() - moment().startOf('day').unix(),
+      leechingCount: this.maindata.leechingCount,
+      seedingCount: this.maindata.seedingCount,
+      globalUploadSpeed: this.avgUploadSpeed,
+      globalDownloadSpeed: this.avgDownloadSpeed
+    };
+    return util.fitConditions(_torrent, conditions, extraFields);
   }
 
   _fitDeleteRule (_rule, torrent, fitTimeJob) {

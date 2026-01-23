@@ -1,5 +1,13 @@
+/**
+ * User Controller
+ *
+ * 用户管理控制器
+ * 处理用户登录、登出和获取用户信息
+ */
+
 const logger = require('../libs/logger');
 const UserMod = require('../model/UserMod');
+const { asyncHandler } = require('../middleware/errorHandler');
 
 const userMod = new UserMod();
 
@@ -14,8 +22,7 @@ class User {
         success: true
       });
     } catch (e) {
-      logger.error(e);
-      logger.error('登录失败, IP:', req.userIp);
+      logger.error('登录失败, IP:', req.userIp, e.message);
       res.send({
         success: false,
         message: e.message

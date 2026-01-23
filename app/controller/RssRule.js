@@ -1,74 +1,16 @@
-const logger = require('../libs/logger');
+const BaseController = require('./BaseController');
 const RssRuleMod = require('../model/RssRuleMod');
 
-const rssRuleMod = new RssRuleMod();
-
-class RssRule {
-  async add (req, res) {
-    const options = req.body;
-    try {
-      const r = rssRuleMod.add(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async delete (req, res) {
-    const options = req.body;
-    try {
-      const r = rssRuleMod.delete(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async modify (req, res) {
-    const options = req.body;
-    try {
-      const r = rssRuleMod.modify(options);
-      res.send({
-        success: true,
-        message: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
-
-  async list (req, res) {
-    try {
-      const r = rssRuleMod.list();
-      res.send({
-        success: true,
-        data: r
-      });
-    } catch (e) {
-      logger.error(e);
-      res.send({
-        success: false,
-        message: e.message
-      });
-    }
-  };
+/**
+ * RssRule Controller
+ *
+ * RSS 规则管理控制器
+ * 继承自 BaseController，提供 RSS 规则的 CRUD 操作
+ */
+class RssRule extends BaseController {
+  constructor () {
+    super(new RssRuleMod(), 'RSS 规则');
+  }
 }
+
 module.exports = RssRule;
