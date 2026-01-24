@@ -112,12 +112,12 @@
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'key'">
-                <a-select size="small" v-model:value="record.key"  >
+                <a-select size="small" v-model:value="record.key">
                   <a-select-option v-for="conditionKey of conditionKeys" :key="conditionKey.key" :value="conditionKey.key">{{ conditionKey.name }}</a-select-option>
                 </a-select>
               </template>
               <template v-if="column.dataIndex === 'compareType'">
-                <a-select size="small" v-model:value="record.compareType"  >
+                <a-select size="small" v-model:value="record.compareType">
                   <a-select-option v-for="type in compareTypes" :key="type.value" :value="type.value">{{ type.label }}</a-select-option>
                 </a-select>
               </template>
@@ -213,6 +213,9 @@
   </div>
 </template>
 <script>
+import { COMPARE_TYPES } from '../../constants/compareTypes';
+import { DELETE_RULE_CONDITION_KEYS } from '../../constants/conditionKeys';
+
 export default {
   data () {
     const columns = [
@@ -263,106 +266,11 @@ export default {
         width: 80
       }
     ];
-    const compareTypes = [
-      { value: 'equal', label: '等于' },
-      { value: 'greater', label: '大于' },
-      { value: 'less', label: '小于' },
-      { value: 'contain', label: '包含' },
-      { value: 'includeIn', label: '包含于' },
-      { value: 'notContain', label: '不包含' },
-      { value: 'notIncludeIn', label: '不包含于' },
-      { value: 'regExp', label: '正则匹配' },
-      { value: 'notRegExp', label: '正则不匹配' }
-    ];
     return {
       columns,
       conditionColumns,
-      compareTypes,
-      conditionKeys: [{
-        name: '种子名称',
-        key: 'name'
-      }, {
-        name: '种子进度',
-        key: 'progress'
-      }, {
-        name: '上传速度',
-        key: 'uploadSpeed'
-      }, {
-        name: '下载速度',
-        key: 'downloadSpeed'
-      }, {
-        name: '种子分类',
-        key: 'category'
-      }, {
-        name: '种子标签',
-        key: 'tags'
-      }, {
-        name: '选择大小',
-        key: 'size'
-      }, {
-        name: '种子大小',
-        key: 'totalSize'
-      }, {
-        name: '种子状态',
-        key: 'state'
-      }, {
-        name: '站点域名',
-        key: 'tracker'
-      }, {
-        name: '返回信息',
-        key: 'trackerStatus'
-      }, {
-        name: '已完成量',
-        key: 'completed'
-      }, {
-        name: '已下载量',
-        key: 'downloaded'
-      }, {
-        name: '已上传量',
-        key: 'uploaded'
-      }, {
-        name: '分享率一',
-        key: 'ratio'
-      }, {
-        name: '分享率二',
-        key: 'trueRatio'
-      }, {
-        name: '分享率三',
-        key: 'ratio3'
-      }, {
-        name: '添加时间',
-        key: 'addedTime'
-      }, {
-        name: '完成时间',
-        key: 'completedTime'
-      }, {
-        name: '保存路径',
-        key: 'savePath'
-      }, {
-        name: '做种连接',
-        key: 'seeder'
-      }, {
-        name: '下载连接',
-        key: 'leecher'
-      }, {
-        name: '剩余空间',
-        key: 'freeSpace'
-      }, {
-        name: '下载任务',
-        key: 'leechingCount'
-      }, {
-        name: '做种任务',
-        key: 'seedingCount'
-      }, {
-        name: '全局上传',
-        key: 'globalUploadSpeed'
-      }, {
-        name: '全局下载',
-        key: 'globalDownloadSpeed'
-      }, {
-        name: '当前时间',
-        key: 'secondFromZero'
-      }],
+      compareTypes: COMPARE_TYPES,
+      conditionKeys: DELETE_RULE_CONDITION_KEYS,
       condition: {
         key: '',
         compareType: '',

@@ -120,16 +120,8 @@
                 </a-select>
               </template>
               <template v-if="column.dataIndex === 'compareType'">
-                <a-select size="small" v-model:value="record.compareType"  >
-                  <a-select-option value="equals">等于</a-select-option>
-                  <a-select-option value="bigger">大于</a-select-option>
-                  <a-select-option value="smaller">小于</a-select-option>
-                  <a-select-option value="contain">包含</a-select-option>
-                  <a-select-option value="includeIn">包含于</a-select-option>
-                  <a-select-option value="notContain">不包含</a-select-option>
-                  <a-select-option value="notIncludeIn">不包含于</a-select-option>
-                  <a-select-option value="regExp">正则匹配</a-select-option>
-                  <a-select-option value="notRegExp">正则不匹配</a-select-option>
+                <a-select size="small" v-model:value="record.compareType">
+                  <a-select-option v-for="type in compareTypes" :key="type.value" :value="type.value">{{ type.label }}</a-select-option>
                 </a-select>
               </template>
               <template v-if="column.dataIndex === 'value'">
@@ -164,6 +156,8 @@
   </div>
 </template>
 <script>
+import { COMPARE_TYPES } from '../../constants/compareTypes';
+
 export default {
   data () {
     const columns = [
@@ -210,6 +204,7 @@ export default {
     return {
       columns,
       conditionColumns,
+      compareTypes: COMPARE_TYPES,
       conditionKeys: [{
         name: '种子名称',
         key: 'name'
