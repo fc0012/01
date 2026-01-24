@@ -39,7 +39,7 @@ COMPARE_TYPES.forEach(type => {
  * @param {string} value - 比较类型值
  * @returns {string} 比较类型标签
  */
-export function getCompareTypeLabel(value) {
+export function getCompareTypeLabel (value) {
   return COMPARE_TYPE_MAP.get(value) || value;
 }
 
@@ -48,6 +48,6 @@ export function getCompareTypeLabel(value) {
  * @param {string} value - 比较类型值
  * @returns {boolean} 是否有效
  */
-export function isValidCompareType(value) {
+export function isValidCompareType (value) {
   return COMPARE_TYPE_MAP.has(value);
 }

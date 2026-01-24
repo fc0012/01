@@ -52,7 +52,7 @@ DELETE_RULE_CONDITION_KEYS.forEach(key => {
  * @param {string} key - 条件键
  * @returns {string} 条件名称
  */
-export function getConditionKeyName(key) {
+export function getConditionKeyName (key) {
   return CONDITION_KEY_MAP.get(key) || key;
 }
 
@@ -61,6 +61,6 @@ export function getConditionKeyName(key) {
  * @param {string} key - 条件键
  * @returns {boolean} 是否有效
  */
-export function isValidConditionKey(key) {
+export function isValidConditionKey (key) {
   return CONDITION_KEY_MAP.has(key);
 }
