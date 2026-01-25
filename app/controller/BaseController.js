@@ -35,9 +35,17 @@ class BaseController {
       });
     } catch (e) {
       logger.error(`${this.entityName} 操作失败:`, e);
+
+      // 如果是鉴权相关的错误，返回 401
+      if (e.message && e.message.includes('鉴权')) {
+        res.status(401);
+      } else {
+        res.status(500);
+      }
+
       res.send({
         success: false,
-        message: e.message
+        message: e.message || '操作失败'
       });
     }
   }

@@ -434,22 +434,24 @@ show_usage() {
     echo "Options:"
     echo "  -d, --dir DIR      Installation directory (default: /opt/vertex)"
     echo "  -p, --port PORT    VERTEX port (default: 3000)"
-    echo "  --skip-qb          Skip qBittorrent installation"
+    echo "  --skip-qb          Skip qBittorrent installation prompt"
     echo "  -h, --help         Show this help message"
     echo ""
     echo "Notes:"
-    echo "  - qBittorrent will be installed automatically with version 4.3.9"
+    echo "  - After VERTEX installation, you will be prompted to install qBittorrent"
+    echo "  - qBittorrent will be automatically configured with version 4.3.9"
     echo "  - Cache size will be automatically set to 1/8 of system memory (min 256 MiB)"
     echo "  - Default qBittorrent credentials: admin/adminadmin"
+    echo "  - Use --skip-qb to skip the qBittorrent installation prompt"
     echo ""
     echo "Examples:"
-    echo "  # Install VERTEX and qBittorrent (automatic configuration)"
+    echo "  # Install VERTEX and prompt for qBittorrent installation"
     echo "  $0"
     echo ""
     echo "  # Install with custom directory and port"
     echo "  $0 -d /opt/myvertex -p 8080"
     echo ""
-    echo "  # Install VERTEX only (skip qBittorrent)"
+    echo "  # Install VERTEX only (skip qBittorrent prompt)"
     echo "  $0 --skip-qb"
     echo ""
 }
@@ -494,9 +496,45 @@ main() {
     start_services "$install_dir" || { cleanup; exit 1; }
     show_vertex_result "$install_dir" "$port"
     
-    # 交互式安装 qBittorrent（除非跳过）
+    # 询问用户是否安装 qBittorrent（除非跳过）
     if [ "$skip_qb" = false ]; then
-        seedbox_menu
+        echo ""
+        echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${CYAN}║${NC}${BOLD}              qBittorrent 安装选项                    ${NC}${CYAN}║${NC}"
+        echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        echo -e "${YELLOW}是否安装 qBittorrent Dedicated Seedbox?${NC}"
+        echo ""
+        echo -e "  qBittorrent 将会自动配置以下信息:"
+        echo -e "    - 用户名: ${YELLOW}admin${NC}"
+        echo -e "    - 密码: ${YELLOW}adminadmin${NC}"
+        echo -e "    - 缓存大小: ${YELLOW}系统内存的 1/8 (最小 256 MiB)${NC}"
+        echo -e "    - 版本: ${YELLOW}4.3.9${NC}"
+        echo ""
+        echo -e "  安装后访问地址:"
+        echo -e "    - Web UI: ${CYAN}http://<服务器IP>:8080${NC}"
+        echo -e "    - NOX: ${CYAN}http://<服务器IP>:8090${NC}"
+        echo ""
+        echo -e "${RED}⚠️  注意: 安装后请立即更改默认密码！${NC}"
+        echo ""
+
+        while true; do
+            read -p "是否安装 qBittorrent? [Y/n]: " install_qb
+            case $install_qb in
+                [Yy]*|"")
+                    seedbox_menu
+                    break
+                    ;;
+                [Nn]*)
+                    print_info "跳过 qBittorrent 安装"
+                    echo ""
+                    break
+                    ;;
+                *)
+                    print_error "无效输入，请输入 Y 或 n"
+                    ;;
+            esac
+        done
     fi
 }
 

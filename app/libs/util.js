@@ -78,8 +78,14 @@ exports.getRecord = function (sql, options = []) {
 };
 
 const _importJson = function (path) {
-  const jsonString = fs.readFileSync(path, { encoding: 'utf-8' });
-  return JSON.parse(jsonString);
+  try {
+    const jsonString = fs.readFileSync(path, { encoding: 'utf-8' });
+    return JSON.parse(jsonString);
+  } catch (e) {
+    logger.error(`读取 JSON 文件失败: ${path}`, e);
+    // 抛出更友好的错误
+    throw new Error(`文件 ${path} 格式错误或损坏`);
+  }
 };
 
 exports.scrapeFree = scrape.free;
@@ -269,14 +275,40 @@ exports.listRss = function () {
 };
 
 exports.listDeleteRule = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/rule/delete'));
-  const deleteRuleList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      deleteRuleList.push(_importJson(path.join(__dirname, '../data/rule/delete', file)));
+  try {
+    const ruleDir = path.join(__dirname, '../data/rule/delete');
+
+    // 检查目录是否存在
+    if (!fs.existsSync(ruleDir)) {
+      logger.warn('删种规则目录不存在，返回空列表');
+      return [];
     }
+
+    const files = fs.readdirSync(ruleDir);
+    const deleteRuleList = [];
+
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        try {
+          const rule = _importJson(path.join(ruleDir, file));
+          if (rule && rule.id) {
+            deleteRuleList.push(rule);
+          } else {
+            logger.warn(`规则文件 ${file} 缺少必要的 id 字段，已跳过`);
+          }
+        } catch (e) {
+          logger.error(`读取规则文件 ${file} 失败:`, e);
+          // 跳过损坏的文件，继续处理其他文件
+          continue;
+        }
+      }
+    }
+
+    return deleteRuleList;
+  } catch (e) {
+    logger.error('获取删种规则列表失败:', e);
+    return []; // 返回空列表而不是抛出异常
   }
-  return deleteRuleList;
 };
 
 exports.listLinkRule = function () {

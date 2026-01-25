@@ -15,45 +15,83 @@ const RedisStore = require('connect-redis')(session);
 
 const multipartMiddleware = new Multipart();
 
+// 添加重连和错误处理
 client.on('error', (err) => {
-  logger.error('Redis:', err);
+  logger.error('Redis 连接错误:', err);
+});
+
+client.on('connect', () => {
+  logger.info('Redis 连接成功');
+});
+
+client.on('reconnecting', () => {
+  logger.warn('Redis 正在重连...');
+});
+
+client.on('ready', () => {
+  logger.info('Redis 已就绪');
 });
 
 const redisConfig = config.getRedisConfig();
 redisConfig.client = client;
 redisConfig.prefix = 'vertex:sess:';
 
+// 添加连接检查
+client.ping((err, result) => {
+  if (err) {
+    logger.error('Redis ping 失败:', err);
+  } else {
+    logger.info('Redis ping 成功:', result);
+  }
+});
+
 const checkAuth = async function (req, res, next) {
-  const pathname = req._parsedOriginalUrl.pathname;
-  const excludePath = [
-    '/api/user/login',
-    '/api/setting/getBackground.less',
-    '/api/setting/getCss.css',
-    '/user/login',
-    '/service-worker.js',
-    '/service-worker.js.map'
-  ];
-  if (req.session?.user && ['/', '/user/login'].includes(pathname)) {
-    return res.redirect(302, '/index');
-  }
-  if (excludePath.includes(pathname) ||
-    pathname.startsWith('/assets') ||
-    pathname.startsWith('/workbox') ||
-    pathname.startsWith('/api/openapi') ||
-    pathname === '/favicon.ico') {
-    return next();
-  }
-  if (!req.session?.user && !pathname.startsWith('/api')) {
-    return res.redirect(302, '/user/login');
-  }
-  if (!req.session?.user) {
-    res.status(401);
+  try {
+    const pathname = req._parsedOriginalUrl.pathname;
+
+    const excludePath = [
+      '/api/user/login',
+      '/api/setting/getBackground.less',
+      '/api/setting/getCss.css',
+      '/user/login',
+      '/service-worker.js',
+      '/service-worker.js.map'
+    ];
+
+    if (req.session?.user && ['/', '/user/login'].includes(pathname)) {
+      return res.redirect(302, '/index');
+    }
+
+    if (excludePath.includes(pathname) ||
+        pathname.startsWith('/assets') ||
+        pathname.startsWith('/workbox') ||
+        pathname.startsWith('/api/openapi') ||
+        pathname === '/favicon.ico') {
+      return next();
+    }
+
+    if (!req.session?.user && !pathname.startsWith('/api')) {
+      return res.redirect(302, '/user/login');
+    }
+
+    if (!req.session?.user) {
+      logger.warn(`鉴权失败: ${pathname}, IP: ${req.userIp || 'unknown'}`);
+      res.status(401);
+      return res.send({
+        success: false,
+        message: '鉴权失效, 请刷新页面后重新登录'
+      });
+    }
+
+    next();
+  } catch (e) {
+    logger.error('鉴权中间件错误:', e);
+    res.status(500);
     return res.send({
       success: false,
-      message: '鉴权失效, 请刷新页面后重新登录'
+      message: '服务器内部错误'
     });
   }
-  next();
 };
 
 const setIp = function (req, res, next) {
