@@ -18,7 +18,7 @@ let redisClient = null;
 
 try {
   const redisConfig = config.getRedisConfig();
-  
+
   // 检查是否配置了Redis端口
   if (!redisConfig.port) {
     logger.warn('Redis 端口未配置，使用内存存储 session');
@@ -26,7 +26,7 @@ try {
   } else {
     logger.info('尝试连接 Redis...');
     redisClient = redis.createClient(redisConfig);
-    
+
     // 添加重连和错误处理
     redisClient.on('error', (err) => {
       logger.error('Redis 连接错误:', err.message);
@@ -35,19 +35,19 @@ try {
         sessionStore = new session.MemoryStore();
       }
     });
-    
+
     redisClient.on('connect', () => {
       logger.info('Redis 连接成功');
     });
-    
+
     redisClient.on('reconnecting', () => {
       logger.warn('Redis 正在重连...');
     });
-    
+
     redisClient.on('ready', () => {
       logger.info('Redis 已就绪');
     });
-    
+
     // 初始化 Redis Store
     const RedisStore = require('connect-redis')(session);
     const storeConfig = {
@@ -55,9 +55,9 @@ try {
       client: redisClient,
       prefix: 'vertex:sess:'
     };
-    
+
     sessionStore = new RedisStore(storeConfig);
-    
+
     // 验证 Redis 连接
     redisClient.ping((err, result) => {
       if (err) {
