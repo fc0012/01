@@ -10,40 +10,69 @@ const logger = require('../libs/logger');
 const ctrl = require('../controller');
 const util = require('../libs/util');
 
-const client = redis.createClient(config.getRedisConfig());
-const RedisStore = require('connect-redis')(session);
-
 const multipartMiddleware = new Multipart();
 
-// 添加重连和错误处理
-client.on('error', (err) => {
-  logger.error('Redis 连接错误:', err);
-});
+// Redis 配置和连接
+let sessionStore;
+let redisClient = null;
 
-client.on('connect', () => {
-  logger.info('Redis 连接成功');
-});
-
-client.on('reconnecting', () => {
-  logger.warn('Redis 正在重连...');
-});
-
-client.on('ready', () => {
-  logger.info('Redis 已就绪');
-});
-
-const redisConfig = config.getRedisConfig();
-redisConfig.client = client;
-redisConfig.prefix = 'vertex:sess:';
-
-// 添加连接检查
-client.ping((err, result) => {
-  if (err) {
-    logger.error('Redis ping 失败:', err);
+try {
+  const redisConfig = config.getRedisConfig();
+  
+  // 检查是否配置了Redis端口
+  if (!redisConfig.port) {
+    logger.warn('Redis 端口未配置，使用内存存储 session');
+    sessionStore = new session.MemoryStore();
   } else {
-    logger.info('Redis ping 成功:', result);
+    logger.info('尝试连接 Redis...');
+    redisClient = redis.createClient(redisConfig);
+    
+    // 添加重连和错误处理
+    redisClient.on('error', (err) => {
+      logger.error('Redis 连接错误:', err.message);
+      logger.warn('切换到内存存储 session');
+      if (sessionStore instanceof require('connect-redis')(session)) {
+        sessionStore = new session.MemoryStore();
+      }
+    });
+    
+    redisClient.on('connect', () => {
+      logger.info('Redis 连接成功');
+    });
+    
+    redisClient.on('reconnecting', () => {
+      logger.warn('Redis 正在重连...');
+    });
+    
+    redisClient.on('ready', () => {
+      logger.info('Redis 已就绪');
+    });
+    
+    // 初始化 Redis Store
+    const RedisStore = require('connect-redis')(session);
+    const storeConfig = {
+      ...redisConfig,
+      client: redisClient,
+      prefix: 'vertex:sess:'
+    };
+    
+    sessionStore = new RedisStore(storeConfig);
+    
+    // 验证 Redis 连接
+    redisClient.ping((err, result) => {
+      if (err) {
+        logger.error('Redis ping 失败:', err.message);
+        logger.warn('切换到内存存储 session');
+        sessionStore = new session.MemoryStore();
+      } else {
+        logger.info('Redis ping 成功:', result);
+      }
+    });
   }
-});
+} catch (e) {
+  logger.error('Redis 初始化失败，使用内存存储 session:', e.message);
+  sessionStore = new session.MemoryStore();
+}
 
 const checkAuth = async function (req, res, next) {
   try {
@@ -58,7 +87,12 @@ const checkAuth = async function (req, res, next) {
       '/service-worker.js.map'
     ];
 
+    // 调试日志
+    logger.debug(`请求路径: ${pathname}, Session ID: ${req.sessionID}`);
+    logger.debug(`Session存在: ${!!req.session}, User存在: ${!!req.session?.user}`);
+
     if (req.session?.user && ['/', '/user/login'].includes(pathname)) {
+      logger.info(`已登录用户访问 ${pathname}，重定向到 /index`);
       return res.redirect(302, '/index');
     }
 
@@ -71,11 +105,12 @@ const checkAuth = async function (req, res, next) {
     }
 
     if (!req.session?.user && !pathname.startsWith('/api')) {
+      logger.warn(`未登录用户访问 ${pathname}，重定向到登录页, IP: ${req.userIp || 'unknown'}`);
       return res.redirect(302, '/user/login');
     }
 
     if (!req.session?.user) {
-      logger.warn(`鉴权失败: ${pathname}, IP: ${req.userIp || 'unknown'}`);
+      logger.warn(`鉴权失败: ${pathname}, IP: ${req.userIp || 'unknown'}, Session ID: ${req.sessionID}`);
       res.status(401);
       return res.send({
         success: false,
@@ -165,10 +200,13 @@ module.exports = function (app, express, router) {
     resave: false,
     rolling: true,
     saveUninitialized: false,
-    store: new RedisStore(redisConfig),
+    store: sessionStore,
     secret: 'sses:xetrev',
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 30
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+      secure: false, // 如果使用HTTPS，设置为true
+      sameSite: 'lax'
     }
   }));
   app.use('/api', express.text({ type: 'text/xml' }));
