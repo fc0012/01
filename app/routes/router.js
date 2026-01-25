@@ -27,13 +27,19 @@ try {
     logger.info('尝试连接 Redis...');
     redisClient = redis.createClient(redisConfig);
 
+    // 初始化 Redis Store
+    const RedisStore = require('connect-redis')(session);
+    const storeConfig = {
+      ...redisConfig,
+      client: redisClient,
+      prefix: 'vertex:sess:'
+    };
+
+    sessionStore = new RedisStore(storeConfig);
+
     // 添加重连和错误处理
     redisClient.on('error', (err) => {
       logger.error('Redis 连接错误:', err.message);
-      logger.warn('切换到内存存储 session');
-      if (sessionStore instanceof require('connect-redis')(session)) {
-        sessionStore = new session.MemoryStore();
-      }
     });
 
     redisClient.on('connect', () => {
@@ -48,26 +54,16 @@ try {
       logger.info('Redis 已就绪');
     });
 
-    // 初始化 Redis Store
-    const RedisStore = require('connect-redis')(session);
-    const storeConfig = {
-      ...redisConfig,
-      client: redisClient,
-      prefix: 'vertex:sess:'
-    };
-
-    sessionStore = new RedisStore(storeConfig);
-
     // 验证 Redis 连接
     redisClient.ping((err, result) => {
       if (err) {
         logger.error('Redis ping 失败:', err.message);
-        logger.warn('切换到内存存储 session');
-        sessionStore = new session.MemoryStore();
       } else {
         logger.info('Redis ping 成功:', result);
       }
     });
+
+
   }
 } catch (e) {
   logger.error('Redis 初始化失败，使用内存存储 session:', e.message);
@@ -97,10 +93,10 @@ const checkAuth = async function (req, res, next) {
     }
 
     if (excludePath.includes(pathname) ||
-        pathname.startsWith('/assets') ||
-        pathname.startsWith('/workbox') ||
-        pathname.startsWith('/api/openapi') ||
-        pathname === '/favicon.ico') {
+      pathname.startsWith('/assets') ||
+      pathname.startsWith('/workbox') ||
+      pathname.startsWith('/api/openapi') ||
+      pathname === '/favicon.ico') {
       return next();
     }
 
@@ -147,7 +143,7 @@ const clientProxy = function (req, res, next) {
     return;
   }
   proxy(client.clientUrl, {
-    proxyReqOptDecorator (proxyReqOpts, srcReq) {
+    proxyReqOptDecorator(proxyReqOpts, srcReq) {
       proxyReqOpts.headers.cookie = global.runningClient[clientId] ? global.runningClient[clientId].cookie || '' : '';
       if (proxyReqOpts.headers['content-type'] && proxyReqOpts.headers['content-type'].indexOf('application/x-www-form-urlencoded') !== -1) {
         proxyReqOpts.headers['content-type'] = 'application/x-www-form-urlencoded';
@@ -172,7 +168,7 @@ const siteProxy = function (req, res, next) {
   }
   const siteUrl = global.runningSite[siteId].siteUrl;
   proxy(siteUrl, {
-    proxyReqOptDecorator (proxyReqOpts, srcReq) {
+    proxyReqOptDecorator(proxyReqOpts, srcReq) {
       proxyReqOpts.headers.cookie = global.runningSite[siteId] ? global.runningSite[siteId].cookie : '';
       proxyReqOpts.headers['user-agent'] = global.userAgent || 'Vertex';
       delete proxyReqOpts.headers['x-forwarded-for'];
