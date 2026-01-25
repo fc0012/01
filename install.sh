@@ -314,10 +314,25 @@ show_vertex_result() {
     echo -e "    Stop:   ${GREEN}cd ${install_dir} && docker compose down${NC}"
     echo -e "    Logs:   ${GREEN}cd ${install_dir} && docker compose logs -f${NC}"
     echo ""
+
+    # 安全提醒
+    echo -e "${RED}╔══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║${NC}${BOLD}${YELLOW}              ⚠️  安全提醒 ⚠️                          ${NC}${RED}║${NC}"
+    echo -e "${RED}╚══════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${YELLOW}为了您的账户安全，请立即更改默认密码！${NC}"
+    echo ""
+    echo -e "${CYAN}更改 VERTEX 密码:${NC}"
+    echo -e "  1. 登录 VERTEX 系统"
+    echo -e "  2. 进入 ${GREEN}系统设置 → 安全设置${NC}"
+    echo -e "  3. 修改密码并保存"
+    echo ""
+    echo -e "${RED}当前使用的是默认密码，存在安全风险！${NC}"
+    echo ""
 }
 
 # ============================================
-# 交互式安装 qBittorrent Dedicated Seedbox
+# 自动安装 qBittorrent Dedicated Seedbox
 # ============================================
 
 seedbox_menu() {
@@ -327,64 +342,58 @@ seedbox_menu() {
     echo -e "${CYAN}║${NC}${BOLD}       调用 jerry048 Seedbox 安装模块                  ${NC}${CYAN}║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    
-    read -p "请输入 WebUI 用户名 [默认: admin]: " sb_user
-    sb_user=${sb_user:-admin}
-    
-    read -p "请输入 WebUI 密码 [默认: adminadmin]: " sb_pass
-    sb_pass=${sb_pass:-adminadmin}
-    
-    read -p "请输入分配的缓存大小 (单位 GiB, 纯数字) [默认: 2]: " sb_cache
-    sb_cache=${sb_cache:-2}
-    
+
+    # 自动配置参数
+    local sb_user="admin"
+    local sb_pass="adminadmin"
+    local sb_ver="4.3.9"
+
+    # 自动检测系统内存并设置为八分之一
+    local total_mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    local total_mem_gb=$((total_mem_kb / 1024 / 1024))
+    local sb_cache=$((total_mem_gb / 8))
+    # 转换为 MiB (1 GiB = 1024 MiB)
+    local cache_mib=$((sb_cache * 1024))
+
+    # 确保缓存大小至少为 256 MiB
+    if [ $cache_mib -lt 256 ]; then
+        cache_mib=256
+        sb_cache=1
+    fi
+
     echo ""
-    echo "请选择 qBittorrent 版本 (例如: 4.3.9, 4.5.5, 4.6.7):"
-    read -p "版本号 [默认: 4.6.3]: " sb_ver
-    sb_ver=${sb_ver:-4.6.3}
-    
-    echo ""
-    echo -e "${BLUE}配置信息:${NC}"
+    echo -e "${BLUE}自动配置信息:${NC}"
     echo -e "  用户名: ${YELLOW}${sb_user}${NC}"
     echo -e "  密码: ${YELLOW}${sb_pass}${NC}"
-    echo -e "  缓存: ${YELLOW}${sb_cache} GiB${NC}"
+    echo -e "  系统内存: ${YELLOW}${total_mem_gb} GiB${NC}"
+    echo -e "  缓存大小: ${YELLOW}${sb_cache} GiB (内存的1/8，最小 256 MiB)${NC}"
     echo -e "  版本: ${YELLOW}${sb_ver}${NC}"
     echo ""
-    
-    read -p "确认安装? [Y/n]: " confirm
-    if [[ "$confirm" =~ ^[Nn]$ ]]; then
-        echo -e "${YELLOW}已取消安装${NC}"
-        return 0
-    fi
-    
-    echo ""
-    echo -e "${BLUE}正在启动安装程序，请稍候...${NC}"
+
+    print_info "正在启动安装程序，请稍候..."
     
     print_step "5" "5" "Installing qBittorrent Dedicated Seedbox"
-    
-    # 执行远程脚本
     if command -v wget &> /dev/null; then
         bash <(wget -qO- https://raw.githubusercontent.com/jerry048/Dedicated-Seedbox/main/Install.sh) \
             -u "$sb_user" \
             -p "$sb_pass" \
-            -c "$sb_cache" \
+            -c "$cache_mib" \
             -q "$sb_ver" \
-            -l 1 \
-            -B
+            -l 1
     elif command -v curl &> /dev/null; then
         bash <(curl -sSL https://raw.githubusercontent.com/jerry048/Dedicated-Seedbox/main/Install.sh) \
             -u "$sb_user" \
             -p "$sb_pass" \
-            -c "$sb_cache" \
+            -c "$cache_mib" \
             -q "$sb_ver" \
-            -l 1 \
-            -B
+            -l 1
     else
         print_error "Neither wget nor curl is available"
         return 1
     fi
     
     print_success "qBittorrent installation completed"
-    
+
     echo ""
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║${NC}${GREEN}${BOLD}         ✔ qBittorrent Installation Complete!          ${NC}${CYAN}║${NC}"
@@ -395,6 +404,27 @@ seedbox_menu() {
     echo -e "    NOX:     ${CYAN}http://$(hostname -I 2>/dev/null | awk '{print $1}'):8090${NC}"
     echo -e "    Username: ${YELLOW}${sb_user}${NC}"
     echo -e "    Password: ${YELLOW}${sb_pass}${NC}"
+    echo ""
+
+    # 安全提醒
+    echo -e "${RED}╔══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║${NC}${BOLD}${YELLOW}              ⚠️  安全提醒 ⚠️                          ${NC}${RED}║${NC}"
+    echo -e "${RED}╚══════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${YELLOW}为了您的账户安全，请立即更改默认密码！${NC}"
+    echo ""
+    echo -e "${CYAN}更改 VERTEX 密码:${NC}"
+    echo -e "  1. 登录 VERTEX 系统"
+    echo -e "  2. 进入 ${GREEN}系统设置 → 安全设置${NC}"
+    echo -e "  3. 修改密码并保存"
+    echo ""
+    echo -e "${CYAN}更改 qBittorrent 密码:${NC}"
+    echo -e "  1. 登录 qBittorrent Web UI"
+    echo -e "  2. 进入 ${GREEN}工具 → 选项${NC}"
+    echo -e "  3. 选择 ${GREEN}Web UI${NC} 标签"
+    echo -e "  4. 修改密码并保存"
+    echo ""
+    echo -e "${RED}当前使用的是默认密码，存在安全风险！${NC}"
     echo ""
 }
 
@@ -407,8 +437,13 @@ show_usage() {
     echo "  --skip-qb          Skip qBittorrent installation"
     echo "  -h, --help         Show this help message"
     echo ""
+    echo "Notes:"
+    echo "  - qBittorrent will be installed automatically with version 4.3.9"
+    echo "  - Cache size will be automatically set to 1/8 of system memory (min 256 MiB)"
+    echo "  - Default qBittorrent credentials: admin/adminadmin"
+    echo ""
     echo "Examples:"
-    echo "  # Install VERTEX and qBittorrent with interactive menu"
+    echo "  # Install VERTEX and qBittorrent (automatic configuration)"
     echo "  $0"
     echo ""
     echo "  # Install with custom directory and port"
