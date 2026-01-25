@@ -4,7 +4,8 @@ const logger = require('../libs/logger');
 
 const files = fs.readdirSync(__dirname);
 for (const file of files) {
-  if (path.extname(file) === '.js' && file !== 'index.js') {
+  // 排除 index.js 和 BaseController.js（BaseController 是基类，不应该被实例化）
+  if (path.extname(file) === '.js' && file !== 'index.js' && file !== 'BaseController.js') {
     const Ctrl = require(path.join(__dirname, file));
     try {
       module.exports[file.split('.')[0]] = new Ctrl();
