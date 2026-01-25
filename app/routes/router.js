@@ -206,7 +206,9 @@ module.exports = function (app, express, router) {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       httpOnly: true,
       secure: false, // 如果使用HTTPS，设置为true
-      sameSite: 'lax'
+      sameSite: 'lax',
+      path: '/', // 确保cookie在整个域下可用
+      domain: undefined // 自动设置为当前域名
     }
   }));
   app.use('/api', express.text({ type: 'text/xml' }));

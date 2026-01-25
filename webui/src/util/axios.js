@@ -4,7 +4,11 @@ import { message } from 'ant-design-vue';
 // 创建 axios 实例
 const instance = axios.create({
   timeout: 10000,
-  validateStatus: () => true
+  validateStatus: () => true,
+  withCredentials: true, // 允许发送cookie
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 // 请求拦截器
@@ -42,6 +46,10 @@ const get = async (url) => {
     }
     return res.data;
   } catch (error) {
+    console.error('GET 请求失败:', url, error);
+    if (error.response?.status === 401) {
+      throw new Error('鉴权失效，请重新登录');
+    }
     throw new Error(error.message || '请求失败');
   }
 };
@@ -54,6 +62,10 @@ const post = async (url, json) => {
     }
     return res.data;
   } catch (error) {
+    console.error('POST 请求失败:', url, error);
+    if (error.response?.status === 401) {
+      throw new Error('鉴权失效，请重新登录');
+    }
     throw new Error(error.message || '请求失败');
   }
 };
