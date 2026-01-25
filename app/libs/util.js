@@ -216,72 +216,128 @@ exports.scrapeEpisodeByFilename = function (_filename, ignoreKeys = '') {
 };
 
 exports.listSite = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/site'));
-  const list = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      list.push(_importJson(path.join(__dirname, '../data/site', file)));
+  try {
+    const dataDir = path.join(__dirname, '../data/site');
+    if (!fs.existsSync(dataDir)) {
+      logger.warn('站点目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(dataDir);
+    const list = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        list.push(_importJson(path.join(dataDir, file)));
+      }
+    }
+    return list;
+  } catch (e) {
+    logger.error('获取站点列表失败:', e);
+    return [];
   }
-  return list;
 };
 
 exports.listPush = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/push'));
-  const list = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      list.push(_importJson(path.join(__dirname, '../data/push', file)));
+  try {
+    const dataDir = path.join(__dirname, '../data/push');
+    if (!fs.existsSync(dataDir)) {
+      logger.warn('推送目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(dataDir);
+    const list = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        list.push(_importJson(path.join(dataDir, file)));
+      }
+    }
+    return list;
+  } catch (e) {
+    logger.error('获取推送列表失败:', e);
+    return [];
   }
-  return list;
 };
 
 exports.listClient = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/client'));
-  const clientList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      clientList.push(_importJson(path.join(__dirname, '../data/client', file)));
+  try {
+    const dataDir = path.join(__dirname, '../data/client');
+    if (!fs.existsSync(dataDir)) {
+      logger.warn('下载器目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(dataDir);
+    const clientList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        clientList.push(_importJson(path.join(dataDir, file)));
+      }
+    }
+    return clientList;
+  } catch (e) {
+    logger.error('获取下载器列表失败:', e);
+    return [];
   }
-  return clientList;
 };
 
 exports.listServer = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/server'));
-  const serverList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      serverList.push(_importJson(path.join(__dirname, '../data/server', file)));
+  try {
+    const dataDir = path.join(__dirname, '../data/server');
+    if (!fs.existsSync(dataDir)) {
+      logger.warn('服务器目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(dataDir);
+    const serverList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        serverList.push(_importJson(path.join(dataDir, file)));
+      }
+    }
+    return serverList;
+  } catch (e) {
+    logger.error('获取服务器列表失败:', e);
+    return [];
   }
-  return serverList;
 };
 
 exports.listRss = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/rss'));
-  const rssList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      const rss = _importJson(path.join(__dirname, '../data/rss', file));
-      if (rss.rssUrl && !rss.rssUrls) {
-        rss.rssUrls = [rss.rssUrl];
-      }
-      rssList.push(rss);
+  try {
+    const dataDir = path.join(__dirname, '../data/rss');
+    if (!fs.existsSync(dataDir)) {
+      logger.warn('RSS任务目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(dataDir);
+    const rssList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        const rss = _importJson(path.join(dataDir, file));
+        if (rss.rssUrl && !rss.rssUrls) {
+          rss.rssUrls = [rss.rssUrl];
+        }
+        rssList.push(rss);
+      }
+    }
+    return rssList;
+  } catch (e) {
+    logger.error('获取RSS任务列表失败:', e);
+    return [];
   }
-  return rssList;
 };
 
 exports.listDeleteRule = function () {
   try {
     const ruleDir = path.join(__dirname, '../data/rule/delete');
 
-    // 检查目录是否存在
+    // 检查目录是否存在，如果不存在则创建
     if (!fs.existsSync(ruleDir)) {
-      logger.warn('删种规则目录不存在，返回空列表');
-      return [];
+      logger.warn('删种规则目录不存在，尝试创建目录');
+      try {
+        fs.mkdirSync(ruleDir, { recursive: true });
+        logger.info('删种规则目录创建成功:', ruleDir);
+      } catch (mkdirErr) {
+        logger.error('创建删种规则目录失败:', mkdirErr);
+        return [];
+      }
     }
 
     const files = fs.readdirSync(ruleDir);
@@ -312,58 +368,108 @@ exports.listDeleteRule = function () {
 };
 
 exports.listLinkRule = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/rule/link'));
-  const linkRuleList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      linkRuleList.push(_importJson(path.join(__dirname, '../data/rule/link', file)));
+  try {
+    const ruleDir = path.join(__dirname, '../data/rule/link');
+    if (!fs.existsSync(ruleDir)) {
+      logger.warn('链接规则目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(ruleDir);
+    const linkRuleList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        linkRuleList.push(_importJson(path.join(ruleDir, file)));
+      }
+    }
+    return linkRuleList;
+  } catch (e) {
+    logger.error('获取链接规则列表失败:', e);
+    return [];
   }
-  return linkRuleList;
 };
 
 exports.listRssRule = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/rule/rss'));
-  const rssRuleList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      rssRuleList.push(_importJson(path.join(__dirname, '../data/rule/rss', file)));
+  try {
+    const ruleDir = path.join(__dirname, '../data/rule/rss');
+    if (!fs.existsSync(ruleDir)) {
+      logger.warn('RSS规则目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(ruleDir);
+    const rssRuleList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        rssRuleList.push(_importJson(path.join(ruleDir, file)));
+      }
+    }
+    return rssRuleList;
+  } catch (e) {
+    logger.error('获取RSS规则列表失败:', e);
+    return [];
   }
-  return rssRuleList;
 };
 
 exports.listRaceRule = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/rule/race'));
-  const raceRuleList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      raceRuleList.push(_importJson(path.join(__dirname, '../data/rule/race', file)));
+  try {
+    const ruleDir = path.join(__dirname, '../data/rule/race');
+    if (!fs.existsSync(ruleDir)) {
+      logger.warn('选种规则目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(ruleDir);
+    const raceRuleList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        raceRuleList.push(_importJson(path.join(ruleDir, file)));
+      }
+    }
+    return raceRuleList;
+  } catch (e) {
+    logger.error('获取选种规则列表失败:', e);
+    return [];
   }
-  return raceRuleList;
 };
 
 exports.listRaceRuleSet = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/rule/raceSet'));
-  const raceRuleSetList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      raceRuleSetList.push(_importJson(path.join(__dirname, '../data/rule/raceSet', file)));
+  try {
+    const ruleDir = path.join(__dirname, '../data/rule/raceSet');
+    if (!fs.existsSync(ruleDir)) {
+      logger.warn('选种规则集目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(ruleDir);
+    const raceRuleSetList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        raceRuleSetList.push(_importJson(path.join(ruleDir, file)));
+      }
+    }
+    return raceRuleSetList;
+  } catch (e) {
+    logger.error('获取选种规则集列表失败:', e);
+    return [];
   }
-  return raceRuleSetList;
 };
 
 exports.listCrontabJavaScript = function () {
-  const files = fs.readdirSync(path.join(__dirname, '../data/script'));
-  const scriptList = [];
-  for (const file of files) {
-    if (path.extname(file) === '.json') {
-      scriptList.push(_importJson(path.join(__dirname, '../data/script', file)));
+  try {
+    const dataDir = path.join(__dirname, '../data/script');
+    if (!fs.existsSync(dataDir)) {
+      logger.warn('脚本目录不存在，返回空列表');
+      return [];
     }
+    const files = fs.readdirSync(dataDir);
+    const scriptList = [];
+    for (const file of files) {
+      if (path.extname(file) === '.json') {
+        scriptList.push(_importJson(path.join(dataDir, file)));
+      }
+    }
+    return scriptList;
+  } catch (e) {
+    logger.error('获取脚本列表失败:', e);
+    return [];
   }
-  return scriptList;
 };
 
 exports.getLinkMapping = function () {
