@@ -62,8 +62,6 @@ try {
         logger.info('Redis ping 成功:', result);
       }
     });
-
-
   }
 } catch (e) {
   logger.error('Redis 初始化失败，使用内存存储 session:', e.message);
