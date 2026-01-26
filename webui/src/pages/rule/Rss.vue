@@ -156,7 +156,7 @@
   </div>
 </template>
 <script>
-import { COMPARE_TYPES } from '../../constants/compareTypes';
+import { COMPARE_TYPES, normalizeCompareType } from '../../constants/compareTypes';
 
 export default {
   data () {
@@ -266,7 +266,15 @@ export default {
     },
     async modifyRssRule () {
       try {
-        await this.$api().rssRule.modify({ ...this.rssRule });
+        // 将别名转换为标准值
+        const ruleToSave = { ...this.rssRule };
+        if (ruleToSave.conditions) {
+          ruleToSave.conditions = ruleToSave.conditions.map(condition => ({
+            ...condition,
+            compareType: normalizeCompareType(condition.compareType)
+          }));
+        }
+        await this.$api().rssRule.modify(ruleToSave);
         this.$message().success((this.rssRule.id ? '编辑' : '新增') + '成功, 列表正在刷新...');
         setTimeout(() => this.listRssRule(), 1000);
         this.clearRssRule();

@@ -213,7 +213,7 @@
   </div>
 </template>
 <script>
-import { COMPARE_TYPES } from '../../constants/compareTypes';
+import { COMPARE_TYPES, getCompareTypeLabel, normalizeCompareType } from '../../constants/compareTypes';
 import { DELETE_RULE_CONDITION_KEYS } from '../../constants/conditionKeys';
 
 export default {
@@ -306,7 +306,15 @@ export default {
     },
     async modifyDeleteRule () {
       try {
-        await this.$api().deleteRule.modify({ ...this.deleteRule });
+        // 将别名转换为标准值
+        const ruleToSave = { ...this.deleteRule };
+        if (ruleToSave.conditions) {
+          ruleToSave.conditions = ruleToSave.conditions.map(condition => ({
+            ...condition,
+            compareType: normalizeCompareType(condition.compareType)
+          }));
+        }
+        await this.$api().deleteRule.modify(ruleToSave);
         this.$message().success((this.deleteRule.id ? '编辑' : '新增') + '成功, 列表正在刷新...');
         setTimeout(() => this.listDeleteRule(), 1000);
         this.clearDeleteRule();

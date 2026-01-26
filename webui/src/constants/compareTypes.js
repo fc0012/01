@@ -9,9 +9,9 @@
 
 // 使用 Object.freeze 冻结对象，防止意外修改，提升性能
 export const COMPARE_TYPES = Object.freeze([
-  { value: 'equal', label: '等于' },
-  { value: 'greater', label: '大于' },
-  { value: 'less', label: '小于' },
+  { value: 'equal', label: '等于', aliases: ['equals'] },
+  { value: 'greater', label: '大于', aliases: ['bigger'] },
+  { value: 'less', label: '小于', aliases: ['smaller'] },
   { value: 'contain', label: '包含' },
   { value: 'includeIn', label: '被包含' },
   { value: 'notContain', label: '不包含' },
@@ -32,6 +32,12 @@ export const COMPARE_TYPE_VALUES = Object.freeze(COMPARE_TYPES.map(type => type.
 const COMPARE_TYPE_MAP = new Map();
 COMPARE_TYPES.forEach(type => {
   COMPARE_TYPE_MAP.set(type.value, type.label);
+  // 添加别名映射
+  if (type.aliases) {
+    type.aliases.forEach(alias => {
+      COMPARE_TYPE_MAP.set(alias, type.label);
+    });
+  }
 });
 
 /**
@@ -49,5 +55,29 @@ export function getCompareTypeLabel (value) {
  * @returns {boolean} 是否有效
  */
 export function isValidCompareType (value) {
+  // 检查是否为标准值或别名
   return COMPARE_TYPE_MAP.has(value);
+}
+
+/**
+ * 将别名转换为标准值
+ * @param {string} value - 比较类型值（可能是别名）
+ * @returns {string} 标准值
+ */
+export function normalizeCompareType (value) {
+  // 如果是标准值，直接返回
+  const standardType = COMPARE_TYPES.find(type => type.value === value);
+  if (standardType) {
+    return value;
+  }
+
+  // 如果是别名，返回对应的标准值
+  for (const type of COMPARE_TYPES) {
+    if (type.aliases && type.aliases.includes(value)) {
+      return type.value;
+    }
+  }
+
+  // 如果都不是，返回原值
+  return value;
 }

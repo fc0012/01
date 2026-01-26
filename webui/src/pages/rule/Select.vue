@@ -139,7 +139,7 @@
   </div>
 </template>
 <script>
-import { COMPARE_TYPES } from '../../constants/compareTypes';
+import { COMPARE_TYPES, normalizeCompareType } from '../../constants/compareTypes';
 
 export default {
   data () {
@@ -273,7 +273,15 @@ export default {
     },
     async modifySelectRule () {
       try {
-        await this.$api().selectRule.modify({ ...this.selectRule });
+        // 将别名转换为标准值
+        const ruleToSave = { ...this.selectRule };
+        if (ruleToSave.conditions) {
+          ruleToSave.conditions = ruleToSave.conditions.map(condition => ({
+            ...condition,
+            compareType: normalizeCompareType(condition.compareType)
+          }));
+        }
+        await this.$api().selectRule.modify(ruleToSave);
         this.$message().success((this.selectRule.id ? '编辑' : '新增') + '成功, 列表正在刷新...');
         setTimeout(() => this.listSelectRule(), 1000);
       } catch (e) {
