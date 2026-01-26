@@ -16,6 +16,12 @@ class BaseController {
   constructor (model, entityName = 'Entity') {
     this.model = model;
     this.entityName = entityName;
+
+    // 绑定方法以确保正确的 this 上下文
+    this.add = this.add.bind(this);
+    this.delete = this.delete.bind(this);
+    this.modify = this.modify.bind(this);
+    this.list = this.list.bind(this);
   }
 
   /**
@@ -55,7 +61,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  add = async (req, res) => {
+  async add (req, res) {
     await this._handleRequest(
       () => this.model.add(req.body),
       req,
@@ -69,7 +75,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  delete = async (req, res) => {
+  async delete (req, res) {
     await this._handleRequest(
       () => this.model.delete(req.body),
       req,
@@ -83,7 +89,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  modify = async (req, res) => {
+  async modify (req, res) {
     await this._handleRequest(
       () => this.model.modify(req.body),
       req,
@@ -97,7 +103,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  list = async (req, res) => {
+  async list (req, res) {
     await this._handleRequest(
       () => this.model.list(),
       req,
