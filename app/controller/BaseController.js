@@ -55,7 +55,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  async add (req, res) {
+  add = async (req, res) => {
     await this._handleRequest(
       () => this.model.add(req.body),
       req,
@@ -69,7 +69,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  async delete (req, res) {
+  delete = async (req, res) => {
     await this._handleRequest(
       () => this.model.delete(req.body),
       req,
@@ -83,7 +83,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  async modify (req, res) {
+  modify = async (req, res) => {
     await this._handleRequest(
       () => this.model.modify(req.body),
       req,
@@ -97,7 +97,7 @@ class BaseController {
    * @param {Object} req - 请求对象
    * @param {Object} res - 响应对象
    */
-  async list (req, res) {
+  list = async (req, res) => {
     await this._handleRequest(
       () => this.model.list(),
       req,
