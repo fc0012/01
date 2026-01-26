@@ -343,10 +343,9 @@ seedbox_menu() {
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
 
-    # 自动配置参数
-    local sb_user="admin"
-    local sb_pass="adminadmin"
-    local sb_ver="4.3.9"
+    # 生成随机用户名和密码
+    local sb_user="qb_$(head /dev/urandom | tr -dc a-z0-9 | head -c 8)"
+    local sb_pass=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
 
     # 自动检测系统内存并设置为八分之一
     local total_mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -367,31 +366,26 @@ seedbox_menu() {
     echo -e "  密码: ${YELLOW}${sb_pass}${NC}"
     echo -e "  系统内存: ${YELLOW}${total_mem_gb} GiB${NC}"
     echo -e "  缓存大小: ${YELLOW}${sb_cache} GiB (内存的1/8，最小 256 MiB)${NC}"
-    echo -e "  版本: ${YELLOW}${sb_ver}${NC}"
     echo ""
 
     print_info "正在启动安装程序，请稍候..."
-    
+
     print_step "5" "5" "Installing qBittorrent Dedicated Seedbox"
     if command -v wget &> /dev/null; then
         bash <(wget -qO- https://raw.githubusercontent.com/jerry048/Dedicated-Seedbox/main/Install.sh) \
             -u "$sb_user" \
             -p "$sb_pass" \
-            -c "$cache_mib" \
-            -q "$sb_ver" \
-            -l 1
+            -c "$cache_mib"
     elif command -v curl &> /dev/null; then
         bash <(curl -sSL https://raw.githubusercontent.com/jerry048/Dedicated-Seedbox/main/Install.sh) \
             -u "$sb_user" \
             -p "$sb_pass" \
-            -c "$cache_mib" \
-            -q "$sb_ver" \
-            -l 1
+            -c "$cache_mib"
     else
         print_error "Neither wget nor curl is available"
         return 1
     fi
-    
+
     print_success "qBittorrent installation completed"
 
     echo ""
@@ -401,7 +395,6 @@ seedbox_menu() {
     echo ""
     echo -e "  ${BOLD}qBittorrent Access${NC}"
     echo -e "    Web UI:  ${CYAN}http://$(hostname -I 2>/dev/null | awk '{print $1}'):8080${NC}"
-    echo -e "    NOX:     ${CYAN}http://$(hostname -I 2>/dev/null | awk '{print $1}'):8090${NC}"
     echo -e "    Username: ${YELLOW}${sb_user}${NC}"
     echo -e "    Password: ${YELLOW}${sb_pass}${NC}"
     echo ""
@@ -411,12 +404,7 @@ seedbox_menu() {
     echo -e "${RED}║${NC}${BOLD}${YELLOW}              ⚠️  安全提醒 ⚠️                          ${NC}${RED}║${NC}"
     echo -e "${RED}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${YELLOW}为了您的账户安全，请立即更改默认密码！${NC}"
-    echo ""
-    echo -e "${CYAN}更改 VERTEX 密码:${NC}"
-    echo -e "  1. 登录 VERTEX 系统"
-    echo -e "  2. 进入 ${GREEN}系统设置 → 安全设置${NC}"
-    echo -e "  3. 修改密码并保存"
+    echo -e "${YELLOW}请妥善保存您的登录凭据！${NC}"
     echo ""
     echo -e "${CYAN}更改 qBittorrent 密码:${NC}"
     echo -e "  1. 登录 qBittorrent Web UI"
@@ -424,7 +412,7 @@ seedbox_menu() {
     echo -e "  3. 选择 ${GREEN}Web UI${NC} 标签"
     echo -e "  4. 修改密码并保存"
     echo ""
-    echo -e "${RED}当前使用的是默认密码，存在安全风险！${NC}"
+    echo -e "${RED}请务必保存以上凭据信息！${NC}"
     echo ""
 }
 
@@ -439,9 +427,9 @@ show_usage() {
     echo ""
     echo "Notes:"
     echo "  - After VERTEX installation, you will be prompted to install qBittorrent"
-    echo "  - qBittorrent will be automatically configured with version 4.3.9"
+    echo "  - qBittorrent uses jerry048's Dedicated-Seedbox installation script"
     echo "  - Cache size will be automatically set to 1/8 of system memory (min 256 MiB)"
-    echo "  - Default qBittorrent credentials: admin/adminadmin"
+    echo "  - Username and password will be randomly generated for security"
     echo "  - Use --skip-qb to skip the qBittorrent installation prompt"
     echo ""
     echo "Examples:"
@@ -495,7 +483,7 @@ main() {
     generate_docker_compose "$install_dir" "$port" || { cleanup; exit 1; }
     start_services "$install_dir" || { cleanup; exit 1; }
     show_vertex_result "$install_dir" "$port"
-    
+
     # 询问用户是否安装 qBittorrent（除非跳过）
     if [ "$skip_qb" = false ]; then
         echo ""
@@ -506,16 +494,14 @@ main() {
         echo -e "${YELLOW}是否安装 qBittorrent Dedicated Seedbox?${NC}"
         echo ""
         echo -e "  qBittorrent 将会自动配置以下信息:"
-        echo -e "    - 用户名: ${YELLOW}admin${NC}"
-        echo -e "    - 密码: ${YELLOW}adminadmin${NC}"
+        echo -e "    - 用户名: ${YELLOW}随机生成 (qb_xxxxxxxx)${NC}"
+        echo -e "    - 密码: ${YELLOW}随机生成 (16位字符)${NC}"
         echo -e "    - 缓存大小: ${YELLOW}系统内存的 1/8 (最小 256 MiB)${NC}"
-        echo -e "    - 版本: ${YELLOW}4.3.9${NC}"
         echo ""
         echo -e "  安装后访问地址:"
         echo -e "    - Web UI: ${CYAN}http://<服务器IP>:8080${NC}"
-        echo -e "    - NOX: ${CYAN}http://<服务器IP>:8090${NC}"
         echo ""
-        echo -e "${RED}⚠️  注意: 安装后请立即更改默认密码！${NC}"
+        echo -e "${RED}⚠️  注意: 安装后请妥善保存随机生成的用户名和密码！${NC}"
         echo ""
 
         while true; do
