@@ -112,14 +112,10 @@
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.dataIndex === 'key'">
-                <a-select size="small" v-model:value="record.key">
-                  <a-select-option v-for="conditionKey of conditionKeys" :key="conditionKey.key" :value="conditionKey.key">{{ conditionKey.name }}</a-select-option>
-                </a-select>
+                <a-select size="small" v-model:value="record.key" :options="conditionKeyOptions"></a-select>
               </template>
               <template v-if="column.dataIndex === 'compareType'">
-                <a-select size="small" v-model:value="record.compareType">
-                  <a-select-option v-for="type in compareTypes" :key="type.value" :value="type.value">{{ type.label }}</a-select-option>
-                </a-select>
+                <a-select size="small" v-model:value="record.compareType" :options="compareTypeOptions"></a-select>
               </template>
               <template v-if="column.dataIndex === 'value'">
                 <a-input size="small" v-model:value="record.value"/>
@@ -293,6 +289,18 @@ export default {
   computed: {
     mobile () {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    },
+    compareTypeOptions () {
+      return this.compareTypes.map(type => ({
+        label: type.label,
+        value: type.value
+      }));
+    },
+    conditionKeyOptions () {
+      return this.conditionKeys.map(key => ({
+        label: key.name,
+        value: key.key
+      }));
     }
   },
   methods: {
@@ -323,7 +331,19 @@ export default {
       }
     },
     modifyClick (row) {
-      this.deleteRule = { ...row };
+      // 深拷贝数据，避免直接修改原始数据
+      this.deleteRule = JSON.parse(JSON.stringify(row));
+      // 确保conditions存在
+      if (!this.deleteRule.conditions) {
+        this.deleteRule.conditions = [];
+      }
+      // 标准化比较类型的值，确保是标准的英文值
+      if (this.deleteRule.conditions) {
+        this.deleteRule.conditions = this.deleteRule.conditions.map(condition => ({
+          ...condition,
+          compareType: normalizeCompareType(condition.compareType)
+        }));
+      }
     },
     async deleteDeleteRule (row) {
       if (row.used) {
