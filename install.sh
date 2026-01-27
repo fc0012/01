@@ -360,12 +360,19 @@ seedbox_menu() {
         sb_cache=1
     fi
 
+    # 设置 qBittorrent 和 libtorrent 版本（使用稳定版本）
+    local qb_version="4.3.9"
+    local lt_version="v1.2.19"
+
     echo ""
     echo -e "${BLUE}自动配置信息:${NC}"
     echo -e "  用户名: ${YELLOW}${sb_user}${NC}"
     echo -e "  密码: ${YELLOW}${sb_pass}${NC}"
     echo -e "  系统内存: ${YELLOW}${total_mem_gb} GiB${NC}"
     echo -e "  缓存大小: ${YELLOW}${sb_cache} GiB (内存的1/8，最小 256 MiB)${NC}"
+    echo -e "  qBittorrent 版本: ${YELLOW}${qb_version}${NC}"
+    echo -e "  libtorrent 版本: ${YELLOW}${lt_version}${NC}"
+    echo -e "  网络优化: ${YELLOW}BBRx${NC}"
     echo ""
 
     print_info "正在启动安装程序，请稍候..."
@@ -375,12 +382,18 @@ seedbox_menu() {
         bash <(wget -qO- https://raw.githubusercontent.com/jerry048/Dedicated-Seedbox/main/Install.sh) \
             -u "$sb_user" \
             -p "$sb_pass" \
-            -c "$cache_mib"
+            -c "$cache_mib" \
+            -q "$qb_version" \
+            -l "$lt_version" \
+            -x
     elif command -v curl &> /dev/null; then
         bash <(curl -sSL https://raw.githubusercontent.com/jerry048/Dedicated-Seedbox/main/Install.sh) \
             -u "$sb_user" \
             -p "$sb_pass" \
-            -c "$cache_mib"
+            -c "$cache_mib" \
+            -q "$qb_version" \
+            -l "$lt_version" \
+            -x
     else
         print_error "Neither wget nor curl is available"
         return 1
@@ -430,6 +443,8 @@ show_usage() {
     echo "  - qBittorrent uses jerry048's Dedicated-Seedbox installation script"
     echo "  - Cache size will be automatically set to 1/8 of system memory (min 256 MiB)"
     echo "  - Username and password will be randomly generated for security"
+    echo "  - qBittorrent version: 4.3.9, libtorrent version: v1.2.19"
+    echo "  - BBRx network optimization will be enabled"
     echo "  - Use --skip-qb to skip the qBittorrent installation prompt"
     echo ""
     echo "Examples:"
@@ -497,6 +512,9 @@ main() {
         echo -e "    - 用户名: ${YELLOW}随机生成 (qb_xxxxxxxx)${NC}"
         echo -e "    - 密码: ${YELLOW}随机生成 (16位字符)${NC}"
         echo -e "    - 缓存大小: ${YELLOW}系统内存的 1/8 (最小 256 MiB)${NC}"
+        echo -e "    - qBittorrent 版本: ${YELLOW}4.3.9${NC}"
+        echo -e "    - libtorrent 版本: ${YELLOW}v1.2.19${NC}"
+        echo -e "    - 网络优化: ${YELLOW}BBRx${NC}"
         echo ""
         echo -e "  安装后访问地址:"
         echo -e "    - Web UI: ${CYAN}http://<服务器IP>:8080${NC}"
