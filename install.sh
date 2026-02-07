@@ -184,6 +184,86 @@ setup_directories() {
     [ ! -d "$install_dir" ] && { mkdir -p "$install_dir" || return 1; CREATED_RESOURCES+=("$install_dir"); }
     [ ! -d "$install_dir/data" ] && { mkdir -p "$install_dir/data" || return 1; CREATED_RESOURCES+=("$install_dir/data"); }
     chmod 755 "$install_dir" "$install_dir/data" 2>/dev/null || true
+
+    # 创建必要的子目录
+    mkdir -p "$install_dir/data/setting"
+    mkdir -p "$install_dir/data/client"
+    mkdir -p "$install_dir/data/rss"
+    mkdir -p "$install_dir/data/rule"
+    mkdir -p "$install_dir/data/site"
+    mkdir -p "$install_dir/data/server"
+    mkdir -p "$install_dir/data/script"
+    mkdir -p "$install_dir/data/push"
+    mkdir -p "$install_dir/data/race"
+    mkdir -p "$install_dir/data/douban"
+    mkdir -p "$install_dir/data/watch"
+
+    # 创建 setting.json 配置文件
+    if [ ! -f "$install_dir/data/setting.json" ]; then
+        cat > "$install_dir/data/setting.json" << 'EOF'
+{
+  "username": "admin",
+  "password": "",
+  "otp": "",
+  "telegramProxy": "https://api.telegram.org",
+  "wechatProxy": "",
+  "checkFinishCron": "30 * * * * *",
+  "userAgent": "",
+  "ignoreError": false,
+  "ignoreDependCheck": false,
+  "webhookPushTo": "",
+  "apiKey": "",
+  "tmdbApiKey": "",
+  "trustVertexPanel": false,
+  "transparent": false,
+  "background": "",
+  "wechatCover": "",
+  "embyCover": "",
+  "plexCover": "",
+  "theme": "light",
+  "siteInfo": {
+    "hide": [],
+    "hideName": [],
+    "watermark": "vertex"
+  },
+  "trustAllCerts": false,
+  "menu": [],
+  "dashboardContent": [],
+  "wechatToken": "",
+  "wechatAesKey": "",
+  "panelKey": "",
+  "jellyfinCover": "",
+  "dataPath": "/"
+}
+EOF
+        chmod 644 "$install_dir/data/setting.json"
+    fi
+
+    # 创建 proxy.json 配置文件
+    if [ ! -f "$install_dir/data/setting/proxy.json" ]; then
+        cat > "$install_dir/data/setting/proxy.json" << 'EOF'
+{
+  "proxy": "",
+  "domains": []
+}
+EOF
+        chmod 644 "$install_dir/data/setting/proxy.json"
+    fi
+
+    # 创建 link-mapping.json 配置文件
+    if [ ! -f "$install_dir/data/link-mapping.json" ]; then
+        cat > "$install_dir/data/link-mapping.json" << 'EOF'
+{}
+EOF
+        chmod 644 "$install_dir/data/link-mapping.json"
+    fi
+
+    # 创建空的 bulk-link-history.json 文件
+    if [ ! -f "$install_dir/data/bulk-link-history.json" ]; then
+        echo "{}" > "$install_dir/data/bulk-link-history.json"
+        chmod 644 "$install_dir/data/bulk-link-history.json"
+    fi
+
     print_success "Created ${install_dir}"
 }
 
