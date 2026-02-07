@@ -358,10 +358,13 @@ show_vertex_result() {
     print_step "4" "5" "Finishing VERTEX setup"
     print_info "Waiting for initialization..."
 
+    # 等待容器完全启动
+    sleep 5
+
     local password_file="$install_dir/data/password"
     local password=""
     local retry=0
-    while [ $retry -lt 30 ]; do
+    while [ $retry -lt 60 ]; do
         if [ -f "$password_file" ]; then
             password=$(cat "$password_file" 2>/dev/null)
             [ -n "$password" ] && break
