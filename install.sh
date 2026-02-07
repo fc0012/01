@@ -211,7 +211,7 @@ services:
     ports:
       - "${port}:3000"
     volumes:
-      - ./data:/vertex
+      - ./data:/app/vertex/app/data
     environment:
       - TZ=Asia/Shanghai
 EOF
@@ -277,8 +277,8 @@ show_vertex_result() {
     
     print_step "4" "5" "Finishing VERTEX setup"
     print_info "Waiting for initialization..."
-    
-    local password_file="$install_dir/data/data/password"
+
+    local password_file="$install_dir/data/password"
     local password=""
     local retry=0
     while [ $retry -lt 30 ]; do
@@ -305,10 +305,10 @@ show_vertex_result() {
     if [ -n "$password" ]; then
         echo -e "    Password: ${YELLOW}${password}${NC}"
     else
-        if [ -f "$install_dir/data/data/setting.json" ]; then
+        if [ -f "$install_dir/data/setting.json" ]; then
             echo -e "    Password: ${YELLOW}(use your previous password)${NC}"
         else
-            echo -e "    Password: ${YELLOW}cat ${install_dir}/data/data/password${NC}"
+            echo -e "    Password: ${YELLOW}cat ${install_dir}/data/password${NC}"
         fi
     fi
     echo ""
