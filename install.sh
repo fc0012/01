@@ -49,16 +49,19 @@ install_docker_debian() {
     print_info "Installing Docker on Debian/Ubuntu..."
     apt-get update -qq
     apt-get install -y -qq ca-certificates curl gnupg lsb-release >/dev/null 2>&1
-    
+
     mkdir -p /etc/apt/keyrings
-    
+
     # 确定发行版名称
     local distro="$OS"
     [ "$distro" = "linuxmint" ] || [ "$distro" = "pop" ] && distro="ubuntu"
-    
+
+    # 删除旧的 GPG 密钥文件（如果存在）
+    rm -f /etc/apt/keyrings/docker.gpg
+
     curl -fsSL "https://download.docker.com/linux/${distro}/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg 2>/dev/null
     chmod a+r /etc/apt/keyrings/docker.gpg
-    
+
     # 对于未知版本，使用最新稳定版的 codename
     local codename="${CODENAME:-bookworm}"
     # Debian 13 (trixie) 回退到 bookworm
@@ -66,9 +69,9 @@ install_docker_debian() {
     # Linux Mint / Pop!_OS 使用对应的 Ubuntu codename
     [ "$OS" = "linuxmint" ] && codename="jammy"
     [ "$OS" = "pop" ] && codename="jammy"
-    
+
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${distro} ${codename} stable" > /etc/apt/sources.list.d/docker.list
-    
+
     apt-get update -qq
     apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin >/dev/null 2>&1
 }
