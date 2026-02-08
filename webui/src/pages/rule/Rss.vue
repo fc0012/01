@@ -266,16 +266,15 @@ export default {
     },
     async modifyRssRule () {
       try {
-        // 将别名转换为标准值
         const ruleToSave = { ...this.rssRule };
-        if (ruleToSave.conditions) {
+        if (ruleToSave.conditions?.length) {
           ruleToSave.conditions = ruleToSave.conditions.map(condition => ({
             ...condition,
             compareType: normalizeCompareType(condition.compareType)
           }));
         }
         await this.$api().rssRule.modify(ruleToSave);
-        this.$message().success((this.rssRule.id ? '编辑' : '新增') + '成功, 列表正在刷新...');
+        this.$message().success(`${this.rssRule.id ? '编辑' : '新增'}成功, 列表正在刷新...`);
         setTimeout(() => this.listRssRule(), 1000);
         this.clearRssRule();
       } catch (e) {

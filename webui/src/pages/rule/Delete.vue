@@ -304,50 +304,46 @@ export default {
     }
   },
   methods: {
+    handleError (error, defaultMessage = '操作失败') {
+      this.$message().error(error.message || defaultMessage);
+    },
     async listDeleteRule () {
       try {
         const res = await this.$api().deleteRule.list();
         this.deleteRuleList = res.data;
       } catch (e) {
-        this.$message().error(e.message);
+        this.handleError(e);
       }
     },
     async modifyDeleteRule () {
       try {
-        // 将别名转换为标准值
         const ruleToSave = { ...this.deleteRule };
-        if (ruleToSave.conditions) {
-          ruleToSave.conditions = ruleToSave.conditions.map(condition => ({
-            ...condition,
-            compareType: normalizeCompareType(condition.compareType)
-          }));
+        if (ruleToSave.conditions?.length) {
+          ruleToSave.conditions = ruleToSave.conditions
+            .filter(({ key, compareType }) => key && compareType)
+            .map(condition => ({
+              ...condition,
+              compareType: normalizeCompareType(condition.compareType)
+            }));
         }
         await this.$api().deleteRule.modify(ruleToSave);
-        this.$message().success((this.deleteRule.id ? '编辑' : '新增') + '成功, 列表正在刷新...');
+        this.$message().success(`${this.deleteRule.id ? '编辑' : '新增'}成功, 列表正在刷新...`);
         setTimeout(() => this.listDeleteRule(), 1000);
         this.clearDeleteRule();
       } catch (e) {
-        this.$message().error(e.message);
+        this.handleError(e);
       }
     },
     modifyClick (row) {
-      // 深拷贝数据，避免直接修改原始数据
       this.deleteRule = JSON.parse(JSON.stringify(row));
-      // 确保conditions存在
-      if (!this.deleteRule.conditions) {
-        this.deleteRule.conditions = [];
-      }
-      // 标准化比较类型的值，确保是标准的英文值
-      if (this.deleteRule.conditions) {
-        this.deleteRule.conditions = this.deleteRule.conditions.map(condition => ({
-          ...condition,
-          compareType: normalizeCompareType(condition.compareType)
-        }));
-      }
+      this.deleteRule.conditions = (this.deleteRule.conditions || []).map(condition => ({
+        ...condition,
+        compareType: normalizeCompareType(condition.compareType)
+      }));
     },
     async deleteDeleteRule (row) {
       if (row.used) {
-        this.$message().error('组件被占用, 取消占用后删除');
+        this.handleError(new Error('组件被占用, 取消占用后删除'));
         return;
       }
       try {
@@ -355,7 +351,7 @@ export default {
         this.$message().success('删除成功, 列表正在刷新...');
         await this.listDeleteRule();
       } catch (e) {
-        this.$message().error(e.message);
+        this.handleError(e);
       }
     },
     clearDeleteRule () {

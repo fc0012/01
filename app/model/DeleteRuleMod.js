@@ -5,67 +5,85 @@ const util = require('../libs/util');
 const logger = require('../libs/logger');
 
 class DeleteRuleMod {
-  add (options) {
-    const id = util.uuid.v4().split('-')[0];
-    const deleteRuleSet = {
-      id
-    };
-    for (const key of Object.keys(options)) {
-      if (options[key] !== undefined && options[key] !== '') {
-        deleteRuleSet[key] = options[key];
-      }
-    }
-    const ruleDir = path.join(__dirname, '../data/rule/delete/');
-    // 确保目录存在
-    if (!fs.existsSync(ruleDir)) {
+  constructor () {
+    this.ruleDir = path.join(__dirname, '../data/rule/delete/');
+    this.ensureDir();
+  }
+
+  ensureDir () {
+    if (!fs.existsSync(this.ruleDir)) {
       try {
-        fs.mkdirSync(ruleDir, { recursive: true });
-        logger.info('删种规则目录创建成功:', ruleDir);
+        fs.mkdirSync(this.ruleDir, { recursive: true });
+        logger.info('删种规则目录创建成功:', this.ruleDir);
       } catch (mkdirErr) {
         logger.error('创建删种规则目录失败:', mkdirErr);
         throw new Error('创建规则目录失败');
       }
     }
-    fs.writeFileSync(path.join(ruleDir, id + '.json'), JSON.stringify(deleteRuleSet, null, 2));
+  }
+
+  filterValidOptions (options) {
+    const filtered = {};
+    for (const key of Object.keys(options)) {
+      if (options[key] !== undefined && options[key] !== '') {
+        filtered[key] = options[key];
+      }
+    }
+    return filtered;
+  }
+
+  getRulePath (id) {
+    return path.join(this.ruleDir, id + '.json');
+  }
+
+  reloadAffectedClients (ruleId) {
+    Object.values(global.runningClient)
+      .filter(client =>
+        (client._deleteRules?.includes(ruleId) || client._rejectDeleteRules?.includes(ruleId)) &&
+        client.autoDeleteJob
+      )
+      .forEach(client => client.reloadDeleteRule());
+  }
+
+  add (options) {
+    const id = util.uuid.v4().split('-')[0];
+    const deleteRuleSet = { id, ...this.filterValidOptions(options) };
+    fs.writeFileSync(this.getRulePath(id), JSON.stringify(deleteRuleSet, null, 2));
     return '添加规则成功';
   };
 
   delete (options) {
-    const filePath = path.join(__dirname, '../data/rule/delete/', options.id + '.json');
+    const filePath = this.getRulePath(options.id);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
       return '删除规则成功';
-    } else {
-      throw new Error('规则文件不存在');
     }
+    throw new Error('规则文件不存在');
   };
 
   modify (options) {
-    const deleteRuleSet = {};
-    for (const key of Object.keys(options)) {
-      if (options[key] !== undefined && options[key] !== '') {
-        deleteRuleSet[key] = options[key];
-      }
-    }
-    const filePath = path.join(__dirname, '../data/rule/delete/', options.id + '.json');
+    const filePath = this.getRulePath(options.id);
     if (!fs.existsSync(filePath)) {
       throw new Error('规则文件不存在');
     }
+
+    const deleteRuleSet = this.filterValidOptions(options);
     fs.writeFileSync(filePath, JSON.stringify(deleteRuleSet, null, 2));
-    Object.keys(global.runningClient)
-      .map(item => global.runningClient[item])
-      .filter(item => ((item._deleteRules.some(i => i === options.id) || item._rejectDeleteRules.some(i => i === options.id)) && !!item.autoDeleteJob))
-      .forEach(item => item.reloadDeleteRule());
+    this.reloadAffectedClients(options.id);
     return '修改规则成功';
   };
 
   list () {
     const deleteRuleList = util.listDeleteRule();
     const clientList = util.listClient();
-    for (const deleteRule of deleteRuleList) {
-      deleteRule.used = clientList.some(item => (item.deleteRules.indexOf(deleteRule.id) !== -1 || (item.rejectDeleteRules || []).indexOf(deleteRule.id) !== -1));
-    }
-    return deleteRuleList;
+
+    return deleteRuleList.map(deleteRule => ({
+      ...deleteRule,
+      used: clientList.some(client =>
+        client.deleteRules?.includes(deleteRule.id) ||
+        client.rejectDeleteRules?.includes(deleteRule.id)
+      )
+    }));
   };
 }
 

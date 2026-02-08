@@ -273,16 +273,15 @@ export default {
     },
     async modifySelectRule () {
       try {
-        // 将别名转换为标准值
         const ruleToSave = { ...this.selectRule };
-        if (ruleToSave.conditions) {
+        if (ruleToSave.conditions?.length) {
           ruleToSave.conditions = ruleToSave.conditions.map(condition => ({
             ...condition,
             compareType: normalizeCompareType(condition.compareType)
           }));
         }
         await this.$api().selectRule.modify(ruleToSave);
-        this.$message().success((this.selectRule.id ? '编辑' : '新增') + '成功, 列表正在刷新...');
+        this.$message().success(`${this.selectRule.id ? '编辑' : '新增'}成功, 列表正在刷新...`);
         setTimeout(() => this.listSelectRule(), 1000);
       } catch (e) {
         this.$message().error(e.message);
