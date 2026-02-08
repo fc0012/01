@@ -31,7 +31,8 @@
         </a-form-item>
         <a-form-item
           :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
-          <a-button size="small" type="primary" @click="getLog">查询</a-button>
+          <a-button size="small" type="primary" @click="getLog" style="margin-right: 8px;">查询</a-button>
+          <a-button size="small" danger @click="clearLog">删除日志</a-button>
         </a-form-item>
         <a-form-item
           :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
@@ -72,6 +73,24 @@ export default {
         this.log = this.log.replace(new RegExp(`\\[${this.$moment().format('YYYY')}-`, 'g'), '[').replace(/\[[^\d]*? console\] \d*/g, '').replace(/\[202/g, '');
       } catch (e) {
         await this.$message().error(e.message);
+      }
+    },
+    async clearLog () {
+      try {
+        await this.$confirm({
+          title: '确认删除',
+          content: '确定要删除所有压缩的日志文件吗？此操作不可恢复。',
+          okText: '确定',
+          cancelText: '取消',
+          okType: 'danger'
+        });
+        const res = await this.$api().log.clear();
+        await this.$message().success(res.message || '日志文件删除成功');
+        this.log = '';
+      } catch (e) {
+        if (e !== 'cancel') {
+          await this.$message().error(e.message || '删除日志文件失败');
+        }
       }
     }
   },
