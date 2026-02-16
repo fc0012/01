@@ -1,109 +1,111 @@
-<template>
-  <div style="font-size: 24px; font-weight: bold;">日志</div>
-  <a-divider></a-divider>
-  <div class="log">
-    <div style="text-align: left; margin: 24px">
-      <a-form
-        labelAlign="right"
-        :labelWrap="true"
-        size="small"
-        :labelCol="{ span: 3 }"
-        :wrapperCol="{ span: 21 }"
-        autocomplete="off"
-        :class="`container-form-${ isMobile() ? 'mobile' : 'pc' }`">
-        <a-form-item
-          label="日志等级"
-          name="type">
-          <a-select size="small" v-model:value="type" @change="getLog">
-            <a-select-option value="info">信息</a-select-option>
-            <a-select-option value="binge">豆瓣</a-select-option>
-            <a-select-option value="binge-debug">豆瓣调试</a-select-option>
-            <a-select-option value="advanced">超级模式</a-select-option>
-            <a-select-option value="advanced-debug">超级模式调试</a-select-option>
-            <a-select-option value="watch">监控分类</a-select-option>
-            <a-select-option value="watch-debug">监控分类调试</a-select-option>
-            <a-select-option value="sc">定时脚本</a-select-option>
-            <a-select-option value="sc-debug">定时脚本调试</a-select-option>
-            <a-select-option value="error">错误</a-select-option>
-            <a-select-option value="debug">调试</a-select-option>
-            <a-select-option value="access">跟踪</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
-          :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
-          <a-button size="small" type="primary" @click="getLog" style="margin-right: 8px;">查询</a-button>
-          <a-button size="small" danger @click="clearLog">删除日志</a-button>
-        </a-form-item>
-        <a-form-item
-          :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
-          <p style="color: red; font-weight: bold;">截图日志务必把版本: {{version.head}}/{{version.updateTime}} 带上, 并注意上方的日志等级以及日志的时间</p>
-          <p style="color: red; font-weight: bold;">注意报错的 message / code / status 附近的内容</p>
-          <p style="color: red; font-weight: bold;">偶尔报错请直接忽略, 周期性报错需要注意。</p>
-        </a-form-item>
-        <a-form-item
-          label="日志">
-          <a-textarea v-model:value="log" type="textarea" autoSize></a-textarea>
-        </a-form-item>
-      </a-form>
+  <template>
+    <div style="font-size: 24px; font-weight: bold;">日志</div>
+    <a-divider></a-divider>
+    <div class="log">
+      <div style="text-align: left; margin: 24px">
+        <a-form
+          labelAlign="right"
+          :labelWrap="true"
+          size="small"
+          :labelCol="{ span: 3 }"
+          :wrapperCol="{ span: 21 }"
+          autocomplete="off"
+          :class="`container-form-${ isMobile() ? 'mobile' : 'pc' }`">
+          <a-form-item
+            label="日志等级"
+            name="type">
+            <a-select size="small" v-model:value="type" @change="getLog">
+              <a-select-option value="info">信息</a-select-option>
+              <a-select-option value="binge">豆瓣</a-select-option>
+              <a-select-option value="binge-debug">豆瓣调试</a-select-option>
+              <a-select-option value="advanced">超级模式</a-select-option>
+              <a-select-option value="advanced-debug">超级模式调试</a-select-option>
+              <a-select-option value="watch">监控分类</a-select-option>
+              <a-select-option value="watch-debug">监控分类调试</a-select-option>
+              <a-select-option value="sc">定时脚本</a-select-option>
+              <a-select-option value="sc-debug">定时脚本调试</a-select-option>
+              <a-select-option value="error">错误</a-select-option>
+              <a-select-option value="debug">调试</a-select-option>
+              <a-select-option value="access">跟踪</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item
+            :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
+            <a-button size="small" type="primary" @click="getLog" style="margin-right: 8px;">查询</a-button>
+            <a-button size="small" danger @click="clearLog">删除日志</a-button>
+          </a-form-item>
+          <a-form-item
+            :wrapperCol="isMobile() ? { span:24 } : { span: 21, offset: 3 }">
+            <p style="color: red; font-weight: bold;">截图日志务必把版本: {{version.head}}/{{version.updateTime}} 带上, 并注意上方的日志等级以及日志的时间</p>
+            <p style="color: red; font-weight: bold;">注意报错的 message / code / status 附近的内容</p>
+            <p style="color: red; font-weight: bold;">偶尔报错请直接忽略, 周期性报错需要注意。</p>
+          </a-form-item>
+          <a-form-item
+            label="日志">
+            <a-textarea v-model:value="log" type="textarea" autoSize></a-textarea>
+          </a-form-item>
+        </a-form>
+      </div>
     </div>
-  </div>
-</template>
-<script>
-export default {
-  data () {
-    return {
-      type: 'error',
-      log: '',
-      version: {}
-    };
-  },
-  methods: {
-    isMobile () {
-      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        return true;
-      } else {
-        return false;
-      }
+  </template>
+  <script>
+  import { Modal } from 'ant-design-vue';
+
+  export default {
+    data () {
+      return {
+        type: 'error',
+        log: '',
+        version: {}
+      };
     },
-    async getLog () {
-      try {
-        const res = await this.$api().log.get(this.type);
-        this.log = res.data;
-        this.log = res ? '[202' + res.data.split('[202').reverse().join('[202') : '';
-        this.log = this.log.replace(new RegExp(`\\[${this.$moment().format('YYYY')}-`, 'g'), '[').replace(/\[[^\d]*? console\] \d*/g, '').replace(/\[202/g, '');
-      } catch (e) {
-        await this.$message().error(e.message);
-      }
-    },
-    async clearLog () {
-      try {
-        await this.$confirm({
-          title: '确认删除',
-          content: '确定要删除所有压缩的日志文件吗？此操作不可恢复。',
-          okText: '确定',
-          cancelText: '取消',
-          okType: 'danger'
-        });
-        const res = await this.$api().log.clear();
-        await this.$message().success(res.message || '日志文件删除成功');
-        this.log = '';
-      } catch (e) {
-        if (e !== 'cancel') {
-          await this.$message().error(e.message || '删除日志文件失败');
+    methods: {
+      isMobile () {
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      async getLog () {
+        try {
+          const res = await this.$api().log.get(this.type);
+          this.log = res.data;
+          this.log = res ? '[202' + res.data.split('[202').reverse().join('[202') : '';
+          this.log = this.log.replace(new RegExp(`\\[${this.$moment().format('YYYY')}-`, 'g'), '[').replace(/\[[^\d]*? console\] \d*/g, '').replace(/\[202/g, '');
+        } catch (e) {
+          await this.$message().error(e.message);
+        }
+      },
+      async clearLog () {
+        try {
+          await Modal.confirm({
+            title: '确认删除',
+            content: '确定要删除所有压缩的日志文件吗？此操作不可恢复。',
+            okText: '确定',
+            cancelText: '取消',
+            okType: 'danger'
+          });
+          const res = await this.$api().log.clear();
+          await this.$message().success(res.message || '日志文件删除成功');
+          this.log = '';
+        } catch (e) {
+          if (e !== 'cancel') {
+            await this.$message().error(e.message || '删除日志文件失败');
+          }
         }
       }
+    },
+    async mounted () {
+      this.version = process.env.version;
+      this.getLog();
     }
-  },
-  async mounted () {
-    this.version = process.env.version;
-    this.getLog();
+  };
+  </script>
+  <style scoped>
+  .log {
+    width: 100%;
+    /*max-width: 1440px;*/
+    margin: 0 auto;
   }
-};
-</script>
-<style scoped>
-.log {
-  width: 100%;
-  /*max-width: 1440px;*/
-  margin: 0 auto;
-}
-</style>
+  </style>
