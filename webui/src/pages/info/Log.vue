@@ -88,7 +88,7 @@
           });
           const res = await this.$api().log.clear();
           await this.$message().success(res.message || '日志文件删除成功');
-          this.log = '';
+          await this.getLog();
         } catch (e) {
           if (e !== 'cancel') {
             await this.$message().error(e.message || '删除日志文件失败');
